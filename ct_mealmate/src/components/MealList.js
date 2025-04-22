@@ -5,7 +5,7 @@ import React from 'react';
 import { useTable } from 'react-table';
 import { Link } from 'react-router-dom';
 
-function MealList({ meals }) {
+function MealList({ meals, onDelete }) {
   const data = React.useMemo(() => meals, [meals]);
 
   const columns = React.useMemo(
@@ -30,17 +30,16 @@ function MealList({ meals }) {
         Header: "Actions",
         Cell: ({ row }) => (
           <div>
-            {/* Edit Link with meal ID */}
             <Link to={`/edit-meal/${row.original.id}`}>Edit</Link>
             {" | "}
-            <button onClick={() => alert(`Delete meal ${row.original.id}`)}>
+            <button onClick={() => onDelete(row.original.id)}>
               Delete
             </button>
           </div>
         ),
       },
     ],
-    []
+    [onDelete]
   );
 
   const tableInstance = useTable({ columns, data });

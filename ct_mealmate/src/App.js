@@ -3,25 +3,23 @@
 // Sets up React Router routes to display pages for viewing, adding, and editing meals
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as BrowserRouter, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import AddMealPage from './pages/AddMealPage';
 import EditMealPage from './pages/EditMealPage';
+import { MealsProvider } from './context/MealsContext';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Route for viewing all meals */}
-        <Route path="/" element={<HomePage />} />
-
-        {/* Route for adding a new meal */}
-        <Route path="/add-meal" element={<AddMealPage />} />
-
-        {/* Route for editing a specific meal (based on ID) */}
-        <Route path="/edit-meal/:mealId" element={<EditMealPage />} />
-      </Routes>
-    </Router>
+    <MealsProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/add-meal" element={<AddMealPage />} />
+          <Route path="/edit-meal/:mealId" element={<EditMealPage />} />
+        </Routes>
+      </BrowserRouter>
+    </MealsProvider>
   );
 }
 

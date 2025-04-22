@@ -4,19 +4,21 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
+import { useMeals } from '../context/MealsContext';
+
 
 function AddMealPage() {
+  const { addMeal } = useMeals(); // ← use real hook
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
   const onSubmit = (data) => {
     console.log("✅ Meal submitted:", data);
-
-    // In real app: call addMeal(data)
-    // For now, just navigate back to home
+    addMeal(data);
     reset();
-    navigate('/');
-  };
+    navigate("/");
+  };  
 
   return (
     <div>

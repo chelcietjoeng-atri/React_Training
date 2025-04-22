@@ -1,9 +1,8 @@
-// useMeals.js
-// Custom hook to manage meal state and basic CRUD operations
+import React, { createContext, useContext, useState } from 'react';
 
-import { useState } from 'react';
+const MealsContext = createContext();
 
-export default function useMeals() {
+export function MealsProvider({ children }) {
   const [meals, setMeals] = useState([
     {
       id: 1,
@@ -38,5 +37,13 @@ export default function useMeals() {
 
   const getMealById = (id) => meals.find((m) => m.id === Number(id));
 
-  return { meals, addMeal, editMeal, deleteMeal, getMealById };
+  return (
+    <MealsContext.Provider value={{ meals, addMeal, editMeal, deleteMeal, getMealById }}>
+      {children}
+    </MealsContext.Provider>
+  );
+}
+
+export function useMeals() {
+  return useContext(MealsContext);
 }
