@@ -1,47 +1,69 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 const MealsContext = createContext();
 
 export function MealsProvider({ children }) {
-  const [meals, setMeals] = useState([
-    { id: 1, name: "Grilled Chicken Bowl", category: "Lunch", day: "Monday", favorite: true },
-    { id: 2, name: "Avocado Toast", category: "Breakfast", day: "Tuesday", favorite: false }
-  ]);
+  const [meals, setMeals] = useState(() => {
+    try {
+      const stored = localStorage.getItem('meals');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Load meals from localStorage on first mount
+  useEffect(() => {
+    const stored = localStorage.getItem('meals');
+    if (stored) {
+      try {
+        setMeals(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse meals from localStorage:', e);
+      }
+    }
+  }, []);
+
+  // Save meals to localStorage on every update
+  useEffect(() => {
+    localStorage.setItem('meals', JSON.stringify(meals));
+  }, [meals]);
 
   const addMeal = (meal) => {
-    const newMeal = { ...meal, id: Date.now() };
+    const newMeal = { id: uuidv4(), favorite: false, ...meal };
     setMeals((prev) => [...prev, newMeal]);
   };
 
-  const updateMeal = (updatedMeal) => {
-    setMeals((prevMeals) =>
-      prevMeals.map((meal) =>
-        meal.id === updatedMeal.id ? updatedMeal : meal
+  const deleteMeal = (id) => {
+    setMeals((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  const editMeal = (id, updatedMeal) => {
+    setMeals((prev) =>
+      prev.map((meal) =>
+        meal.id === id ? { ...meal, ...updatedMeal } : meal
       )
     );
-  };  
-
-  const deleteMeal = (id) => {
-    setMeals((prev) => prev.filter((meal) => meal.id !== id));
   };
 
   const toggleFavorite = (id) => {
-    setMeals((prevMeals) =>
-      prevMeals.map((meal) =>
+    setMeals((prev) =>
+      prev.map((meal) =>
         meal.id === id ? { ...meal, favorite: !meal.favorite } : meal
       )
     );
   };
 
   return (
-    <MealsContext.Provider value={{ meals, addMeal, updateMeal, deleteMeal, toggleFavorite,}}>
+    <MealsContext.Provider
+      value={{ meals, addMeal, deleteMeal, editMeal, toggleFavorite }}
+    >
       {children}
     </MealsContext.Provider>
   );
 }
 
 export function useMeals() {
-  const context = useContext(MealsContext);
-  if (!context) throw new Error("useMeals must be used within MealsProvider");
-  return context;
+  return useContext(MealsContext);
 }

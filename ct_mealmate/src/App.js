@@ -12,7 +12,7 @@ import './App.css';
 
 function App() {
   return (
-    <MealsProvider> {/* Wrap the entire app */}
+    <MealsProvider>
       <Router>
         <Routes>
           <Route path="/" element={<HomePage />} />
