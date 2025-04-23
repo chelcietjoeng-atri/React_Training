@@ -1,89 +1,44 @@
 // MealList.js
 // Displays a table of meals using React Table
 
+// MealList.js
 import React from 'react';
-import { useTable } from 'react-table';
 import { Link } from 'react-router-dom';
 
 function MealList({ meals, onDelete }) {
-  const data = React.useMemo(() => meals, [meals]);
-
-  const columns = React.useMemo(
-    () => [
-      {
-        Header: "Meal Name",
-        accessor: "name",
-      },
-      {
-        Header: "Meal Type",
-        accessor: "type",
-      },
-      {
-        Header: "Day",
-        accessor: "day",
-      },
-      {
-        Header: "Favorite",
-        accessor: (row) => (row.favorite ? "Yes" : "No"),
-      },
-      {
-        Header: "Actions",
-        Cell: ({ row }) => (
-          <div>
-            <Link to={`/edit-meal/${row.original.id}`}>Edit</Link>
-            {" | "}
-            <button onClick={() => onDelete(row.original.id)}>
-              Delete
-            </button>
-          </div>
-        ),
-      },
-    ],
-    [onDelete]
-  );
-
-  const tableInstance = useTable({ columns, data });
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = tableInstance;
+  if (meals.length === 0) {
+    return <p className="mt-4 text-gray-600">No meals added yet.</p>;
+  }
 
   return (
-    <table {...getTableProps()} border="1" style={{ width: '100%', marginTop: '1rem' }}>
-      <thead>
-        {headerGroups.map((headerGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()} style={{ backgroundColor: '#eee' }}>
-            {headerGroup.headers.map((column) => (
-              <th {...column.getHeaderProps()} style={{ padding: '0.5rem' }}>
-                {column.render('Header')}
-              </th>
-            ))}
+    <table className="min-w-full table-auto border-collapse border border-gray-300 mt-4">
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="border border-gray-300 px-4 py-2">Meal Name</th>
+          <th className="border border-gray-300 px-4 py-2">Day</th>
+          <th className="border border-gray-300 px-4 py-2">Category</th>
+          <th className="border border-gray-300 px-4 py-2">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {meals.map((meal) => (
+          <tr key={meal.id}>
+            <td className="border px-4 py-2">{meal.name}</td>
+            <td className="border px-4 py-2">{meal.day}</td>
+            <td className="border px-4 py-2">{meal.category}</td>
+            <td className="border px-4 py-2">
+              <Link to={`/edit-meal/${meal.id}`} className="text-blue-600 hover:underline mr-4">
+                Edit
+              </Link>
+              <button
+                onClick={() => onDelete(meal.id)}
+                className="text-red-600 hover:underline"
+              >
+                Delete
+              </button>
+            </td>
           </tr>
         ))}
-      </thead>
-      <tbody {...getTableBodyProps()}>
-        {rows.length === 0 ? (
-          <tr>
-            <td colSpan={5}>No meals found.</td>
-          </tr>
-        ) : (
-          rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()} style={{ padding: '0.5rem' }}>
-                    {cell.render('Cell')}
-                  </td>
-                ))}
-              </tr>
-            );
-          })
-        )}
       </tbody>
     </table>
   );

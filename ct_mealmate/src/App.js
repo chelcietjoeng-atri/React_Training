@@ -8,6 +8,7 @@ import { MealsProvider } from './context/MealsContext'; // Make sure the path is
 import HomePage from './pages/HomePage';
 import AddMealPage from './pages/AddMealPage';
 import EditMealPage from './pages/EditMealPage';
+import './App.css';
 
 function App() {
   return (
