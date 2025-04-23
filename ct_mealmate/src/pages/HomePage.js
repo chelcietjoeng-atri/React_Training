@@ -1,61 +1,115 @@
 // HomePage.js
 // Main page that lists all meals and links to add/edit forms
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
-import MealList from '../components/MealList';
 
+// Utility to group meals by day
+const groupByDay = (meals) => {
+  return meals.reduce((acc, meal) => {
+    acc[meal.day] = acc[meal.day] || [];
+    acc[meal.day].push(meal);
+    return acc;
+  }, {});
+};
+
+// Get today's weekday name
+const getToday = () => {
+  const days = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday',
+    'Thursday', 'Friday', 'Saturday'
+  ];
+  return days[new Date().getDay()];
+};
 
 function HomePage() {
   const { meals, deleteMeal } = useMeals();
-  <MealList meals={meals} onDelete={deleteMeal} />
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterDay, setFilterDay] = useState('');
+  const [sortField, setSortField] = useState('');
+
+  const today = getToday();
+
+  // Filter, search, and sort
+  const filteredMeals = meals
+    .filter((meal) =>
+      meal.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .filter((meal) => (filterDay ? meal.day === filterDay : true))
+    .sort((a, b) => {
+      if (sortField === 'day') return a.day.localeCompare(b.day);
+      if (sortField === 'category') return a.category.localeCompare(b.category);
+      return 0;
+    });
+
+  const groupedMeals = groupByDay(filteredMeals);
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">🍽️ CT's MealMate - Weekly Meal Planner</h1>
+    <div className="container">
+      <h1>🍽️ CT's MealMate - Weekly Meal Planner</h1>
 
-      <Link to="/add-meal" className="text-green-600 hover:underline">
-        ➕ Add a New Meal
-      </Link>
+      <div style={{ marginBottom: '1rem' }}>
+        <Link to="/add-meal">➕ Add a New Meal</Link>
+      </div>
 
-      {meals.length > 0 ? (
-        <table className="min-w-full table-auto border-collapse border border-gray-300 mt-4">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border border-gray-300 px-4 py-2">Meal Name</th>
-              <th className="border border-gray-300 px-4 py-2">Day</th>
-              <th className="border border-gray-300 px-4 py-2">Category</th>
-              <th className="border border-gray-300 px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {meals.map((meal) => (
-              <tr key={meal.id}>
-                <td className="border px-4 py-2">{meal.name}</td>
-                <td className="border px-4 py-2">{meal.day}</td>
-                <td className="border px-4 py-2">{meal.category}</td>
-                <td className="border px-4 py-2">
-                  <Link
-                    to={`/edit-meal/${meal.id}`}
-                    className="text-blue-600 hover:underline mr-4"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={() => deleteMeal(meal.id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        <input
+          type="text"
+          placeholder="Search by name"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <select value={filterDay} onChange={(e) => setFilterDay(e.target.value)}>
+          <option value="">Filter by day</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
+          <option value="Saturday">Saturday</option>
+          <option value="Sunday">Sunday</option>
+        </select>
+
+        <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
+          <option value="">Sort by…</option>
+          <option value="day">Sort by Day</option>
+          <option value="category">Sort by Category</option>
+        </select>
+      </div>
+
+      {Object.keys(groupedMeals).map((day) => (
+        <div key={day} style={{ marginBottom: '2rem' }}>
+          <h2>{day}</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr>
+                <th style={{ border: '1px solid #ccc', padding: '0.5rem' }}>Name</th>
+                <th style={{ border: '1px solid #ccc', padding: '0.5rem' }}>Category</th>
+                <th style={{ border: '1px solid #ccc', padding: '0.5rem' }}>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="mt-4 text-gray-600">No meals planned yet. Start by adding one!</p>
-      )}
+            </thead>
+            <tbody>
+              {groupedMeals[day].map((meal) => (
+                <tr
+                  key={meal.id}
+                  style={{
+                    backgroundColor: meal.day === today ? '#fff9c4' : 'transparent'
+                  }}
+                >
+                  <td style={{ border: '1px solid #ccc', padding: '0.5rem' }}>{meal.name}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '0.5rem' }}>{meal.category}</td>
+                  <td style={{ border: '1px solid #ccc', padding: '0.5rem' }}>
+                    <Link to={`/edit-meal/${meal.id}`}>Edit</Link>{' '}
+                    <button onClick={() => deleteMeal(meal.id)}>Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }

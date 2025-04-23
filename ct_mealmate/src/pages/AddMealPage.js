@@ -38,10 +38,10 @@ function AddMealPage() {
         {/* Meal Type */}
         <div style={{ marginTop: "1rem" }}>
           <label>Meal Type</label><br />
-          <label><input type="radio" value="Breakfast" {...register("type", { required: true })} /> Breakfast</label><br />
-          <label><input type="radio" value="Lunch" {...register("type", { required: true })} /> Lunch</label><br />
-          <label><input type="radio" value="Dinner" {...register("type", { required: true })} /> Dinner</label>
-          {errors.type && <p style={{ color: "red" }}>Meal type is required</p>}
+          <label><input type="radio" value="Breakfast" {...register("category", { required: true })} /> Breakfast</label><br />
+          <label><input type="radio" value="Lunch" {...register("category", { required: true })} /> Lunch</label><br />
+          <label><input type="radio" value="Dinner" {...register("category", { required: true })} /> Dinner</label>
+          {errors.category && <p style={{ color: "red" }}>Meal type is required</p>}
         </div>
 
         {/* Day of Week */}
