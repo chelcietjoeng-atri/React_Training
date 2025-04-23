@@ -1,7 +1,7 @@
 // HomePage.js
 // Main page that lists all meals and links to add/edit forms
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
 
@@ -13,20 +13,39 @@ const groupByDay = (meals) =>
     return acc;
   }, {});
 
-// Get today’s weekday
-const getToday = () => {
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  return days[new Date().getDay()];
-};
-
 function HomePage() {
   const { meals, deleteMeal, toggleFavorite } = useMeals();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterDay, setFilterDay] = useState('');
   const [sortField, setSortField] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
+  const [highlightedId, setHighlightedId] = useState(null);
+  const [lastActionTime, setLastActionTime] = useState(null);
+  const prevMealMapRef = useRef(new Map());
+  const prevMealIdsRef = useRef(new Set());
 
-  const today = getToday();
+  useEffect(() => {
+    const currentMap = new Map(meals.map((meal) => [meal.id, meal.favorite]));
+    const currentIds = new Set(meals.map((meal) => meal.id));
+    const prevMap = prevMealMapRef.current;
+    const prevIds = prevMealIdsRef.current;
+
+    const newMeal = meals.find((meal) => !prevIds.has(meal.id));
+    const toggledMeal = meals.find((meal) => prevMap.has(meal.id) && prevMap.get(meal.id) !== meal.favorite);
+
+    const highlighted = newMeal || toggledMeal;
+    if (highlighted) {
+      setHighlightedId(highlighted.id);
+      setLastActionTime(Date.now());
+      const timeout = setTimeout(() => setHighlightedId(null), 1500);
+      prevMealMapRef.current = currentMap;
+      prevMealIdsRef.current = currentIds;
+      return () => clearTimeout(timeout);
+    }
+
+    prevMealMapRef.current = currentMap;
+    prevMealIdsRef.current = currentIds;
+  }, [meals]);
 
   const filteredMeals = meals
     .filter((meal) => meal.name.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -88,35 +107,43 @@ function HomePage() {
               </tr>
             </thead>
             <tbody>
-              {groupedMeals[day].map((meal) => (
-                <tr
-                  key={meal.id}
-                  style={{
-                    backgroundColor: meal.day === today ? '#fffde7' : meal.favorite ? '#fff8e1' : 'white'
-                  }}
-                >
-                  <td style={tdStyle}>{meal.name}</td>
-                  <td style={tdStyle}>{meal.category}</td>
-                  <td style={{ ...tdStyle, textAlign: 'center' }}>
-                    <button
-                      onClick={() => toggleFavorite(meal.id)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontSize: '1.2rem'
-                      }}
-                      title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
-                    >
-                      {meal.favorite ? '⭐' : '☆'}
-                    </button>
-                  </td>
-                  <td style={tdStyle}>
-                    <Link to={`/edit-meal/${meal.id}`} style={{ marginRight: '0.5rem' }}>Edit</Link>
-                    <button onClick={() => deleteMeal(meal.id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
+              {groupedMeals[day].map((meal) => {
+                const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
+                const backgroundColor = isHighlighted
+                  ? meal.favorite ? '#fff3c0' : '#d4f4f7'
+                  : 'white';
+
+                return (
+                  <tr
+                    key={meal.id}
+                    style={{
+                      backgroundColor,
+                      transition: 'background-color 0.6s ease'
+                    }}
+                  >
+                    <td style={tdStyle}>{meal.name}</td>
+                    <td style={tdStyle}>{meal.category}</td>
+                    <td style={{ ...tdStyle, textAlign: 'center' }}>
+                      <button
+                        onClick={() => toggleFavorite(meal.id)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '1.2rem'
+                        }}
+                        title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
+                      >
+                        {meal.favorite ? '⭐' : '☆'}
+                      </button>
+                    </td>
+                    <td style={tdStyle}>
+                      <Link to={`/edit-meal/${meal.id}`} style={{ marginRight: '0.5rem' }}>Edit</Link>
+                      <button onClick={() => deleteMeal(meal.id)}>Delete</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
