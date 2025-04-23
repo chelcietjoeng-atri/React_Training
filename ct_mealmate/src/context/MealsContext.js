@@ -25,8 +25,16 @@ export function MealsProvider({ children }) {
     setMeals((prev) => prev.filter((meal) => meal.id !== id));
   };
 
+  const toggleFavorite = (id) => {
+    setMeals((prevMeals) =>
+      prevMeals.map((meal) =>
+        meal.id === id ? { ...meal, favorite: !meal.favorite } : meal
+      )
+    );
+  };
+
   return (
-    <MealsContext.Provider value={{ meals, addMeal, updateMeal, deleteMeal }}>
+    <MealsContext.Provider value={{ meals, addMeal, updateMeal, deleteMeal, toggleFavorite,}}>
       {children}
     </MealsContext.Provider>
   );
