@@ -4,20 +4,8 @@ const MealsContext = createContext();
 
 export function MealsProvider({ children }) {
   const [meals, setMeals] = useState([
-    {
-      id: 1,
-      name: "Grilled Chicken Bowl",
-      type: "Lunch",
-      day: "Monday",
-      favorite: true,
-    },
-    {
-      id: 2,
-      name: "Avocado Toast",
-      type: "Breakfast",
-      day: "Tuesday",
-      favorite: false,
-    },
+    { id: 1, name: "Grilled Chicken Bowl", category: "Lunch", day: "Monday", favorite: true },
+    { id: 2, name: "Avocado Toast", category: "Breakfast", day: "Tuesday", favorite: false }
   ]);
 
   const addMeal = (meal) => {
@@ -25,25 +13,27 @@ export function MealsProvider({ children }) {
     setMeals((prev) => [...prev, newMeal]);
   };
 
-  const editMeal = (id, updatedMeal) => {
-    setMeals((prev) =>
-      prev.map((m) => (m.id === id ? { ...updatedMeal, id } : m))
+  const updateMeal = (updatedMeal) => {
+    setMeals((prevMeals) =>
+      prevMeals.map((meal) =>
+        meal.id === updatedMeal.id ? updatedMeal : meal
+      )
     );
-  };
+  };  
 
   const deleteMeal = (id) => {
-    setMeals((prev) => prev.filter((m) => m.id !== id));
+    setMeals((prev) => prev.filter((meal) => meal.id !== id));
   };
 
-  const getMealById = (id) => meals.find((m) => m.id === Number(id));
-
   return (
-    <MealsContext.Provider value={{ meals, addMeal, editMeal, deleteMeal, getMealById }}>
+    <MealsContext.Provider value={{ meals, addMeal, updateMeal, deleteMeal }}>
       {children}
     </MealsContext.Provider>
   );
 }
 
 export function useMeals() {
-  return useContext(MealsContext);
+  const context = useContext(MealsContext);
+  if (!context) throw new Error("useMeals must be used within MealsProvider");
+  return context;
 }

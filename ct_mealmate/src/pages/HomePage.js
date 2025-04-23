@@ -3,11 +3,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import MealList from '../components/MealList';
-import { useMeals } from '../context/MealsContext';
+import MealList from '../components/MealList';  // Assuming this component displays the list of meals
+import { useMeals } from '../context/MealsContext';  // Ensure this is the correct path to the MealsContext
 
 function HomePage() {
-  const { meals, deleteMeal } = useMeals();
+  const { meals, deleteMeal } = useMeals();  // Using context here
 
   return (
     <div>
