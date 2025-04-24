@@ -8,6 +8,7 @@ import { startOfWeek, addDays, format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react'; 
+import MealStatsModal from '../components/MealStatsModal';
 
 // Group meals by date (YYYY-MM-DD)
 const groupByDate = (meals) =>
@@ -74,7 +75,7 @@ function HomePage() {
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>🍽️ CT's MealMate</h1>
-
+      <MealStatsModal meals={meals} filterWeek={true} filterFavorites={showFavoritesOnly} />
       <div style={{ marginBottom: '1rem' }}>
         <Link to="/add-meal" style={{ fontSize: '1rem' }}>➕ Add a New Meal</Link>
       </div>
