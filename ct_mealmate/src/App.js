@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import AddMealPage from './pages/AddMealPage';
 import EditMealPage from './pages/EditMealPage';
 import WelcomePopup from './components/WelcomePopup';
+import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 
 function App() {

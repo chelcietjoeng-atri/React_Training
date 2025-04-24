@@ -5,6 +5,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
 import { startOfWeek, addDays, format } from 'date-fns';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Calendar } from 'lucide-react'; 
 
 // Group meals by date (YYYY-MM-DD)
 const groupByDate = (meals) =>
@@ -96,12 +99,33 @@ function HomePage() {
         </button>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <button onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>← Prev Week</button>
+        
         <strong>
-          Week of {format(addDays(currentWeekStart, -1), 'EEEE, MMM d')} – {format(addDays(currentWeekStart, 5), 'EEEE, MMM d')}
+          Week of {format(currentWeekStart, 'EEEE, MMM d')} – {format(addDays(currentWeekStart, 6), 'EEEE, MMM d')}
         </strong>
+        
         <button onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>Next Week →</button>
+
+        <button
+          onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+          style={{ marginLeft: 'auto' }}
+        >
+          Today
+        </button>
+
+        <DatePicker
+          selected={currentWeekStart}
+          onChange={(date) => setCurrentWeekStart(startOfWeek(date, { weekStartsOn: 1 }))}
+          customInput={
+            <button title="Pick a week" style={{ padding: '0.3rem 0.6rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Calendar size={16} />
+              Pick Date
+            </button>
+          }
+          popperPlacement="bottom-end"
+        />
       </div>
 
       {weekDates.map((dateStr) => (
