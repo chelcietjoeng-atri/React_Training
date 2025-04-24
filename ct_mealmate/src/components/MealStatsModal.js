@@ -1,5 +1,5 @@
 // src/components/MealStatsModal.js
-import React, { useState } from 'react';
+import React from 'react';
 import MealStatsChart from './MealStatsChart';
 
 const modalOverlayStyle = {
@@ -24,39 +24,32 @@ const modalStyle = {
   animation: 'fadeIn 0.2s ease-out',
 };
 
-const MealStatsModal = ({ meals, filterWeek = false, filterFavorites = false }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const close = () => setIsOpen(false);
-  const open = () => setIsOpen(true);
+const MealStatsModal = ({ meals, isOpen, onClose, filterWeek = false, filterFavorites = false }) => {
+  if (!isOpen) return null;
 
   return (
-    <>
-      <button onClick={open} style={{ marginBottom: '1rem', padding: '0.5rem 1rem' }}>
-        📊 View Meal Stats
-      </button>
-
-      {isOpen && (
-        <div style={modalOverlayStyle} onClick={close}>
-          <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={close}
-              style={{
-                float: 'right',
-                background: 'transparent',
-                border: 'none',
-                fontSize: '1.4rem',
-                cursor: 'pointer'
-              }}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <MealStatsChart meals={meals} filterWeek={filterWeek} filterFavorites={filterFavorites} />
-          </div>
-        </div>
-      )}
-    </>
+    <div style={modalOverlayStyle} onClick={onClose}>
+      <div style={modalStyle} onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={onClose}
+          style={{
+            float: 'right',
+            background: 'transparent',
+            border: 'none',
+            fontSize: '1.4rem',
+            cursor: 'pointer',
+          }}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <MealStatsChart
+          meals={meals}
+          filterWeek={filterWeek}
+          filterFavorites={filterFavorites}
+        />
+      </div>
+    </div>
   );
 };
 
