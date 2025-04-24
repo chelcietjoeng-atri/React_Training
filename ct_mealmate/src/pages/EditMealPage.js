@@ -1,63 +1,96 @@
 // EditMealPage.js
 // Page to edit an existing meal using React Hook Form
-// Uses the meal ID from the URL to fetch and update data from context
 
-import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/themes/material_green.css';
 
 function EditMealPage() {
-  const { mealId } = useParams();
   const navigate = useNavigate();
-  const { meals, editMeal } = useMeals(); // ⬅️ updated from updateMeal to editMeal
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { mealId } = useParams();
+  const { meals, editMeal } = useMeals(); 
+  const meal = meals.find((m) => m.id === mealId); 
 
-  const mealToEdit = meals.find((meal) => String(meal.id) === mealId);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
+    defaultValues: meal || {
+      name: '',
+      category: '',
+      favorite: false,
+      date: new Date(),
+    },
+  });
 
-  useEffect(() => {
-    if (mealToEdit) {
-      reset(mealToEdit);
+  React.useEffect(() => {
+    if (meal) {
+      setValue('name', meal.name);
+      setValue('category', meal.category);
+      setValue('favorite', meal.favorite);
+      setValue('date', new Date(meal.date));
     }
-  }, [mealToEdit, reset]);
+  }, [meal, setValue]);
 
   const onSubmit = (data) => {
-    editMeal(mealId, data); // ⬅️ updated function call
+    editMeal(mealId, {
+      ...data,
+      date: data.date.toISOString().split('T')[0],
+    });
     navigate('/');
-  };
+  };  
 
-  if (!mealToEdit) return <p>Meal not found.</p>;
+  if (!meal) return <p>Meal not found.</p>;
 
   return (
     <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '1rem' }}>
       <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>✏️ Edit Meal</h1>
 
-      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}
+      >
         {/* Name */}
         <div>
-          <label>Meal Name</label><br />
-          <input {...register("name", { required: "Meal name is required" })} style={inputStyle} />
+          <label>Meal Name</label>
+          <br />
+          <input
+            {...register('name', { required: 'Meal name is required' })}
+            style={inputStyle}
+          />
           {errors.name && <p style={errorStyle}>{errors.name.message}</p>}
         </div>
 
-        {/* Day */}
+        {/* Date */}
         <div>
-          <label>Day</label><br />
-          <select {...register("day", { required: "Day is required" })} style={inputStyle}>
-            <option value="">Select Day</option>
-            {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(day => (
-              <option key={day}>{day}</option>
-            ))}
-          </select>
-          {errors.day && <p style={errorStyle}>{errors.day.message}</p>}
+          <label>Date</label>
+          <br />
+          <Flatpickr
+            value={watch('date')}
+            onChange={([date]) => setValue('date', date)}
+            options={{ dateFormat: 'Y-m-d', defaultDate: new Date() }}
+            className="flatpickr-input"
+          />
         </div>
 
         {/* Category */}
         <div>
-          <label>Meal Type</label><br />
-          {["Breakfast", "Lunch", "Dinner"].map(type => (
+          <label>Meal Type</label>
+          <br />
+          {['Breakfast', 'Lunch', 'Dinner'].map((type) => (
             <label key={type} style={{ marginRight: '1rem' }}>
-              <input type="radio" value={type} {...register("category", { required: true })} /> {type}
+              <input
+                type="radio"
+                value={type}
+                {...register('category', { required: true })}
+              />{' '}
+              {type}
             </label>
           ))}
           {errors.category && <p style={errorStyle}>Meal type is required</p>}
@@ -66,12 +99,14 @@ function EditMealPage() {
         {/* Favorite */}
         <div>
           <label>
-            <input type="checkbox" {...register("favorite")} /> Favorite?
+            <input type="checkbox" {...register('favorite')} /> Favorite?
           </label>
         </div>
 
         {/* Submit */}
-        <button type="submit" style={buttonStyle}>Update Meal</button>
+        <button type="submit" style={buttonStyle}>
+          Save Changes
+        </button>
       </form>
 
       <div style={{ marginTop: '1rem' }}>
@@ -84,7 +119,7 @@ function EditMealPage() {
 const inputStyle = {
   padding: '0.5rem',
   width: '100%',
-  marginTop: '0.25rem'
+  marginTop: '0.25rem',
 };
 
 const buttonStyle = {
@@ -93,12 +128,12 @@ const buttonStyle = {
   color: 'white',
   border: 'none',
   borderRadius: '4px',
-  cursor: 'pointer'
+  cursor: 'pointer',
 };
 
 const errorStyle = {
   color: 'red',
-  fontSize: '0.9rem'
+  fontSize: '0.9rem',
 };
 
 export default EditMealPage;

@@ -15,9 +15,13 @@ function App() {
   return (
     <MealsProvider>
       <Router>
-        <WelcomePopup />
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={
+            <>
+              <WelcomePopup />
+              <HomePage />
+            </>
+          } />
           <Route path="/add-meal" element={<AddMealPage />} />
           <Route path="/edit-meal/:mealId" element={<EditMealPage />} />
         </Routes>

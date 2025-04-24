@@ -4,23 +4,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
+import { startOfWeek, addDays, format } from 'date-fns';
 
-// Group meals by day
-const groupByDay = (meals) =>
+// Group meals by date (YYYY-MM-DD)
+const groupByDate = (meals) =>
   meals.reduce((acc, meal) => {
-    acc[meal.day] = acc[meal.day] || [];
-    acc[meal.day].push(meal);
+    acc[meal.date] = acc[meal.date] || [];
+    acc[meal.date].push(meal);
     return acc;
   }, {});
 
 function HomePage() {
   const { meals, deleteMeal, toggleFavorite } = useMeals();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterDay, setFilterDay] = useState('');
   const [sortField, setSortField] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [highlightedId, setHighlightedId] = useState(null);
   const [lastActionTime, setLastActionTime] = useState(null);
+  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+
   const prevMealMapRef = useRef(new Map());
   const prevMealIdsRef = useRef(new Set());
 
@@ -31,7 +33,9 @@ function HomePage() {
     const prevIds = prevMealIdsRef.current;
 
     const newMeal = meals.find((meal) => !prevIds.has(meal.id));
-    const toggledMeal = meals.find((meal) => prevMap.has(meal.id) && prevMap.get(meal.id) !== meal.favorite);
+    const toggledMeal = meals.find(
+      (meal) => prevMap.has(meal.id) && prevMap.get(meal.id) !== meal.favorite
+    );
 
     const highlighted = newMeal || toggledMeal;
     if (highlighted) {
@@ -47,17 +51,22 @@ function HomePage() {
     prevMealIdsRef.current = currentIds;
   }, [meals]);
 
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const date = addDays(currentWeekStart, i);
+    return format(date, 'yyyy-MM-dd');
+  });
+
   const filteredMeals = meals
+    .filter((meal) => weekDates.includes(meal.date))
     .filter((meal) => meal.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter((meal) => (filterDay ? meal.day === filterDay : true))
     .filter((meal) => (showFavoritesOnly ? meal.favorite : true))
     .sort((a, b) => {
-      if (sortField === 'day') return a.day.localeCompare(b.day);
+      if (sortField === 'date') return a.date.localeCompare(b.date);
       if (sortField === 'category') return a.category.localeCompare(b.category);
       return 0;
     });
 
-  const groupedMeals = groupByDay(filteredMeals);
+  const groupedMeals = groupByDate(filteredMeals);
 
   return (
     <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
@@ -76,16 +85,9 @@ function HomePage() {
           style={{ padding: '0.4rem', flexGrow: 1 }}
         />
 
-        <select value={filterDay} onChange={(e) => setFilterDay(e.target.value)} style={{ padding: '0.4rem' }}>
-          <option value="">Filter by Day</option>
-          {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => (
-            <option key={day}>{day}</option>
-          ))}
-        </select>
-
         <select value={sortField} onChange={(e) => setSortField(e.target.value)} style={{ padding: '0.4rem' }}>
           <option value="">Sort by…</option>
-          <option value="day">Day</option>
+          <option value="date">Date</option>
           <option value="category">Category</option>
         </select>
 
@@ -94,9 +96,17 @@ function HomePage() {
         </button>
       </div>
 
-      {Object.keys(groupedMeals).map((day) => (
-        <div key={day} style={{ marginBottom: '2rem' }}>
-          <h2 style={{ marginBottom: '0.5rem' }}>{day}</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+        <button onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}>← Prev Week</button>
+        <strong>
+          Week of {format(addDays(currentWeekStart, -1), 'EEEE, MMM d')} – {format(addDays(currentWeekStart, 5), 'EEEE, MMM d')}
+        </strong>
+        <button onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}>Next Week →</button>
+      </div>
+
+      {weekDates.map((dateStr) => (
+        <div key={dateStr} style={{ marginBottom: '2rem' }}>
+          <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
             <thead style={{ backgroundColor: '#f0f0f0' }}>
               <tr>
@@ -107,7 +117,7 @@ function HomePage() {
               </tr>
             </thead>
             <tbody>
-              {groupedMeals[day].map((meal) => {
+              {(groupedMeals[dateStr] || []).map((meal) => {
                 const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
                 const backgroundColor = isHighlighted
                   ? meal.favorite ? '#fff3c0' : '#d4f4f7'
