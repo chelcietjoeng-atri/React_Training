@@ -4,16 +4,18 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { MealsProvider } from './context/MealsContext'; // Make sure the path is correct
+import { MealsProvider } from './context/MealsContext';
 import HomePage from './pages/HomePage';
 import AddMealPage from './pages/AddMealPage';
 import EditMealPage from './pages/EditMealPage';
+import WelcomePopup from './components/WelcomePopup';
 import './App.css';
 
 function App() {
   return (
     <MealsProvider>
       <Router>
+        <WelcomePopup />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/add-meal" element={<AddMealPage />} />
