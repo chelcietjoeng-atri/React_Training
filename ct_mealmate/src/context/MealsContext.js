@@ -1,3 +1,4 @@
+// context/MealsContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,19 +14,6 @@ export function MealsProvider({ children }) {
     }
   });
 
-  // Load meals from localStorage on first mount
-  useEffect(() => {
-    const stored = localStorage.getItem('meals');
-    if (stored) {
-      try {
-        setMeals(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse meals from localStorage:', e);
-      }
-    }
-  }, []);
-
-  // Save meals to localStorage on every update
   useEffect(() => {
     localStorage.setItem('meals', JSON.stringify(meals));
   }, [meals]);

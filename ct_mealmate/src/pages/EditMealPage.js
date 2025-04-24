@@ -5,67 +5,100 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useMeals } from '../context/MealsContext';  // Make sure this is the correct path
+import { useMeals } from '../context/MealsContext';
 
 function EditMealPage() {
-  const { mealId } = useParams(); // Grab ID from URL
+  const { mealId } = useParams();
   const navigate = useNavigate();
-  const { meals, updateMeal } = useMeals();
-  const { register, handleSubmit, reset } = useForm();
+  const { meals, editMeal } = useMeals(); // ⬅️ updated from updateMeal to editMeal
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-  // Find meal from context
   const mealToEdit = meals.find((meal) => String(meal.id) === mealId);
 
   useEffect(() => {
     if (mealToEdit) {
-      reset(mealToEdit); // This will make sure the default values, including `category`, are set
+      reset(mealToEdit);
     }
   }, [mealToEdit, reset]);
-  
+
   const onSubmit = (data) => {
-    updateMeal({ ...data, id: Number(mealId) });  // Ensure `data` includes all the updated fields, including `category`
-    navigate('/'); // Go back home
-  };  
+    editMeal(mealId, data); // ⬅️ updated function call
+    navigate('/');
+  };
 
   if (!mealToEdit) return <p>Meal not found.</p>;
 
   return (
-    <div className="container">
-      <h2>Edit Meal</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
+    <div style={{ maxWidth: '600px', margin: '2rem auto', padding: '1rem' }}>
+      <h1 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>✏️ Edit Meal</h1>
+
+      <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+        {/* Name */}
         <div>
-          <label>Meal Name:</label>
-          <input {...register('name', { required: true })} />
+          <label>Meal Name</label><br />
+          <input {...register("name", { required: "Meal name is required" })} style={inputStyle} />
+          {errors.name && <p style={errorStyle}>{errors.name.message}</p>}
         </div>
 
+        {/* Day */}
         <div>
-          <label>Day:</label>
-          <select {...register('day', { required: true })}>
+          <label>Day</label><br />
+          <select {...register("day", { required: "Day is required" })} style={inputStyle}>
             <option value="">Select Day</option>
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-            <option value="Saturday">Saturday</option>
-            <option value="Sunday">Sunday</option>
+            {["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].map(day => (
+              <option key={day}>{day}</option>
+            ))}
           </select>
+          {errors.day && <p style={errorStyle}>{errors.day.message}</p>}
         </div>
 
+        {/* Category */}
         <div>
-          <label>Category:</label>
-          <select {...register('type', { required: true })}>
-            <option value="">Select Type</option>
-            <option value="Breakfast">Breakfast</option>
-            <option value="Lunch">Lunch</option>
-            <option value="Dinner">Dinner</option>
-          </select>
+          <label>Meal Type</label><br />
+          {["Breakfast", "Lunch", "Dinner"].map(type => (
+            <label key={type} style={{ marginRight: '1rem' }}>
+              <input type="radio" value={type} {...register("category", { required: true })} /> {type}
+            </label>
+          ))}
+          {errors.category && <p style={errorStyle}>Meal type is required</p>}
         </div>
 
-        <button type="submit">Update Meal</button>
+        {/* Favorite */}
+        <div>
+          <label>
+            <input type="checkbox" {...register("favorite")} /> Favorite?
+          </label>
+        </div>
+
+        {/* Submit */}
+        <button type="submit" style={buttonStyle}>Update Meal</button>
       </form>
+
+      <div style={{ marginTop: '1rem' }}>
+        <a href="/">← Back to Home</a>
+      </div>
     </div>
   );
 }
+
+const inputStyle = {
+  padding: '0.5rem',
+  width: '100%',
+  marginTop: '0.25rem'
+};
+
+const buttonStyle = {
+  padding: '0.6rem 1.2rem',
+  backgroundColor: '#28a745',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer'
+};
+
+const errorStyle = {
+  color: 'red',
+  fontSize: '0.9rem'
+};
 
 export default EditMealPage;
