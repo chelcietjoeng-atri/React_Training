@@ -7,24 +7,32 @@ import { useNavigate } from 'react-router-dom';
 import { useMeals } from '../context/MealsContext';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
+import { useLocation } from 'react-router-dom';
+import { parseISO, isValid } from 'date-fns';
+import { format } from 'date-fns';
+
 
 function AddMealPage() {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const dateParam = params.get('date');
+  const defaultDate = dateParam && isValid(parseISO(dateParam)) ? dateParam : format(new Date(), 'yyyy-MM-dd');
+
   const navigate = useNavigate();
   const { addMeal } = useMeals();
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
+    watch,
+    setValue
   } = useForm({
     defaultValues: {
       name: '',
       category: '',
-      favorite: false,
-      date: new Date(),
-    },
-  });
+      date: defaultDate,
+    }
+  });  
 
   const onSubmit = (data) => {
     addMeal({ ...data, date: data.date.toISOString().split('T')[0] });

@@ -142,43 +142,69 @@ function HomePage() {
               </tr>
             </thead>
             <tbody>
-              {(groupedMeals[dateStr] || []).map((meal) => {
-                const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
-                const backgroundColor = isHighlighted
-                  ? meal.favorite ? '#fff3c0' : '#d4f4f7'
-                  : 'white';
+              {(groupedMeals[dateStr] || []).length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>
+                    <Link
+                      to={`/add-meal?date=${dateStr}`}
+                      style={{
+                        display: 'inline-block',
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#f8f8f8',
+                        borderRadius: '0.5rem',
+                        border: '1px dashed #ccc',
+                        color: '#333',
+                        textDecoration: 'none',
+                        fontSize: '0.95rem',
+                        fontStyle: 'italic',
+                        transition: 'all 0.2s ease-in-out'
+                      }}
+                      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#eee')}
+                      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f8f8f8')}
+                    >
+                      ➕ Add a meal
+                    </Link>
+                  </td>
+                </tr>
+              ) : (
+                (groupedMeals[dateStr] || []).map((meal) => {
+                  const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
+                  const backgroundColor = isHighlighted
+                    ? meal.favorite ? '#fff3c0' : '#d4f4f7'
+                    : 'white';
 
-                return (
-                  <tr
-                    key={meal.id}
-                    style={{
-                      backgroundColor,
-                      transition: 'background-color 0.6s ease'
-                    }}
-                  >
-                    <td style={tdStyle}>{meal.name}</td>
-                    <td style={tdStyle}>{meal.category}</td>
-                    <td style={{ ...tdStyle, textAlign: 'center' }}>
-                      <button
-                        onClick={() => toggleFavorite(meal.id)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          fontSize: '1.2rem'
-                        }}
-                        title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
-                      >
-                        {meal.favorite ? '⭐' : '☆'}
-                      </button>
-                    </td>
-                    <td style={tdStyle}>
-                      <Link to={`/edit-meal/${meal.id}`} style={{ marginRight: '0.5rem' }}>Edit</Link>
-                      <button onClick={() => deleteMeal(meal.id)}>Delete</button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr
+                      key={meal.id}
+                      style={{
+                        backgroundColor,
+                        transition: 'background-color 0.6s ease'
+                      }}
+                    >
+                      <td style={tdStyle}>{meal.name}</td>
+                      <td style={tdStyle}>{meal.category}</td>
+                      <td style={{ ...tdStyle, textAlign: 'center' }}>
+                        <button
+                          onClick={() => toggleFavorite(meal.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            fontSize: '1.2rem'
+                          }}
+                          title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
+                        >
+                          {meal.favorite ? '⭐' : '☆'}
+                        </button>
+                      </td>
+                      <td style={tdStyle}>
+                        <Link to={`/edit-meal/${meal.id}`} style={{ marginRight: '0.5rem' }}>Edit</Link>
+                        <button onClick={() => deleteMeal(meal.id)}>Delete</button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
