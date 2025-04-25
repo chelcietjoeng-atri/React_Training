@@ -1,45 +1,42 @@
-// context/MealsContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
 
 const MealsContext = createContext();
+const API_URL = 'http://localhost:3001/meals';
 
 export function MealsProvider({ children }) {
-  const [meals, setMeals] = useState(() => {
-    try {
-      const stored = localStorage.getItem('meals');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [meals, setMeals] = useState([]);
 
+  // Fetch meals on load
   useEffect(() => {
-    localStorage.setItem('meals', JSON.stringify(meals));
-  }, [meals]);
+    axios.get(API_URL).then((res) => setMeals(res.data)).catch(console.error);
+  }, []);
 
-  const addMeal = (meal) => {
-    const newMeal = { id: uuidv4(), favorite: false, ...meal };
-    setMeals((prev) => [...prev, newMeal]);
+  const addMeal = async (meal) => {
+    const response = await axios.post(API_URL, { ...meal, favorite: false });
+    setMeals((prev) => [...prev, response.data]);
   };
 
-  const deleteMeal = (id) => {
+  const deleteMeal = async (id) => {
+    await axios.delete(`${API_URL}/${id}`);
     setMeals((prev) => prev.filter((m) => m.id !== id));
   };
 
-  const editMeal = (id, updatedMeal) => {
+  const editMeal = async (id, updatedMeal) => {
+    const response = await axios.put(`${API_URL}/${id}`, updatedMeal);
     setMeals((prev) =>
-      prev.map((meal) =>
-        meal.id === id ? { ...meal, ...updatedMeal } : meal
-      )
+      prev.map((meal) => (meal.id === id ? response.data : meal))
     );
   };
 
-  const toggleFavorite = (id) => {
+  const toggleFavorite = async (id) => {
+    const meal = meals.find((m) => m.id === id);
+    if (!meal) return;
+    const response = await axios.patch(`${API_URL}/${id}`, {
+      favorite: !meal.favorite,
+    });
     setMeals((prev) =>
-      prev.map((meal) =>
-        meal.id === id ? { ...meal, favorite: !meal.favorite } : meal
-      )
+      prev.map((m) => (m.id === id ? response.data : m))
     );
   };
 

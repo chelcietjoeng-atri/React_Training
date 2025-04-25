@@ -1,34 +1,55 @@
-// App.js
-// Entry point for MealMate app
-// Sets up React Router routes to display pages for viewing, adding, and editing meals
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import { MealsProvider } from './context/MealsContext';
+import { AuthProvider } from './context/AuthContext';
+
 import HomePage from './pages/HomePage';
 import AddMealPage from './pages/AddMealPage';
 import EditMealPage from './pages/EditMealPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+
 import WelcomePopup from './components/WelcomePopup';
+import PrivateRoute from './components/PrivateRoute';
+
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
 
-function App() {
+export default function App() {
   return (
-    <MealsProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={
-            <>
-              <WelcomePopup />
-              <HomePage />
-            </>
-          } />
-          <Route path="/add-meal" element={<AddMealPage />} />
-          <Route path="/edit-meal/:mealId" element={<EditMealPage />} />
-        </Routes>
-      </Router>
-    </MealsProvider>
+    <AuthProvider>
+      <MealsProvider>
+        <Router>
+          <Routes>
+            {/* Protected Home Page with WelcomePopup */}
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <HomeWithWelcome />
+                </PrivateRoute>
+              }
+            />
+
+            {/* Public Routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/add-meal" element={<AddMealPage />} />
+            <Route path="/edit-meal/:mealId" element={<EditMealPage />} />
+          </Routes>
+        </Router>
+      </MealsProvider>
+    </AuthProvider>
   );
 }
 
-export default App;
+// Separate HomeWithWelcome as a cleaner pattern
+function HomeWithWelcome() {
+  return (
+    <>
+      <WelcomePopup />
+      <HomePage />
+    </>
+  );
+}

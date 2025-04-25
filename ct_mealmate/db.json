@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "username": "admin",
+      "password": "123123"
+    },
+    {
+      "id": "2321",
+      "username": "admin2",
+      "password": "123123"
+    },
+    {
+      "id": "48f5",
+      "username": "babymochi",
+      "password": "123123"
+    },
+    {
+      "id": "72bc",
+      "username": "babymochi2",
+      "password": "123123"
+    }
+  ],
+  "meals": []
+}
