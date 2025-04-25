@@ -1,3 +1,5 @@
+// cypress/e2e/meals_crud.cy.js
+
 describe('MealMate CRUD Tests', () => {
   beforeEach(() => {
     cy.visit('/');
@@ -6,44 +8,48 @@ describe('MealMate CRUD Tests', () => {
   it('creates a new meal', () => {
     cy.contains('➕ Add a New Meal').click();
 
-    cy.get('input[name="name"]').type('Test Pancakes');
+    const mealName = 'Test Pancakes';
+    const category = 'Breakfast';
+
+    cy.get('input[name="name"]').type(mealName);
     cy.get('input[type="radio"][value="Breakfast"]').check();
-    cy.get('select[name="day"]').select('Monday');
+    cy.get('input.flatpickr-input').click();
+    cy.get('.flatpickr-day.today').click();
     cy.get('input[type="checkbox"][name="favorite"]').check();
     cy.get('button[type="submit"]').click();
 
-    // ✅ Should show new meal grouped under Monday
-    cy.contains('Monday').parent().within(() => {
-      cy.contains('td', 'Test Pancakes');
-      cy.contains('td', 'Breakfast');
-    });
+    // ✅ Should show new meal on homepage
+    cy.url().should('eq', Cypress.config().baseUrl + '/');
+    cy.contains(mealName).should('exist');
+    cy.contains(category).should('exist');
   });
 
   it('edits an existing meal', () => {
-    // Click "Edit" link on first meal row
+    // Click Edit on first meal
     cy.get('table tbody tr').first().within(() => {
       cy.contains('Edit').click();
     });
 
-    // Update form fields
-    cy.get('input[name="name"]').clear().type('Updated Pancakes');
-    cy.get('select[name="day"]').select('Tuesday');
+    // Edit form
+    const updatedName = 'Updated Pancakes';
+    const updatedCategory = 'Lunch';
+
+    cy.get('input[name="name"]').clear().type(updatedName);
     cy.get('input[type="radio"][value="Lunch"]').check();
+    cy.get('input.flatpickr-input').click();
+    cy.get('.flatpickr-day.today').click();
     cy.get('button[type="submit"]').click();
 
-    // ✅ Confirm meal shows up under Tuesday
-    cy.contains('Tuesday').parent().within(() => {
-      cy.contains('td', 'Updated Pancakes');
-      cy.contains('td', 'Lunch');
-    });
+    // ✅ Confirm updated meal on homepage
+    cy.url().should('eq', Cypress.config().baseUrl + '/');
+    cy.contains(updatedName).should('exist');
+    cy.contains(updatedCategory).should('exist');
   });
 
   it('deletes a meal', () => {
-    // Capture current row count
     cy.get('table tbody tr').then(($rows) => {
       const initialCount = $rows.length;
 
-      // Delete first meal
       cy.get('table tbody tr').first().within(() => {
         cy.contains('Delete').click();
       });
