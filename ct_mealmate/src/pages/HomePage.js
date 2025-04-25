@@ -10,6 +10,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react'; 
 import MealStatsModal from '../components/MealStatsModal';
 import { useNavigate } from 'react-router-dom';
+import StickyHeader from '../components/StickyHeader';
 
 // Group meals by date (YYYY-MM-DD)
 const groupByDate = (meals) =>
@@ -76,291 +77,292 @@ function HomePage() {
   const groupedMeals = groupByDate(filteredMeals);
 
   return (
-    <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
-      <h1 style={{ fontSize: '2rem', marginBottom: '1rem' }}>🍽️ CT's MealMate</h1>
-
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-          alignItems: 'center',
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Search meals"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+    <>
+      <StickyHeader />
+      <div style={{ maxWidth: '900px', margin: '2rem auto', padding: '1rem' }}>
+        <div
           style={{
-            padding: '0.5rem',
-            flexGrow: 1,
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-            minWidth: '200px',
-          }}
-        />
-
-        <select
-          value={sortField}
-          onChange={(e) => setSortField(e.target.value)}
-          style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '0.4rem' }}
-        >
-          <option value="">Sort by…</option>
-          <option value="date">Date</option>
-          <option value="category">Category</option>
-        </select>
-
-        <button
-          onClick={() => setShowFavoritesOnly((prev) => !prev)}
-          style={{
-            padding: '0.4rem 0.75rem',
             display: 'flex',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            marginBottom: '1.5rem',
             alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
           }}
         >
-          {showFavoritesOnly ? 'Show All Meals' : '⭐ Show Favorites'}
-        </button>
+          <input
+            type="text"
+            placeholder="Search meals"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              padding: '0.5rem',
+              flexGrow: 1,
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+              minWidth: '200px',
+            }}
+          />
 
-        <button
-          onClick={() => navigate('/add-meal')}
-          style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-          }}
-        >
-          ➕ Add a New Meal
-        </button>
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value)}
+            style={{ padding: '0.5rem', border: '1px solid #ccc', borderRadius: '0.4rem' }}
+          >
+            <option value="">Sort by…</option>
+            <option value="date">Date</option>
+            <option value="category">Category</option>
+          </select>
 
-        <button onClick={() => setShowStats(true)}
-          style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-          }}
-        >
-          📊 View Meal Stats
-        </button>
+          <button
+            onClick={() => setShowFavoritesOnly((prev) => !prev)}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+            }}
+          >
+            {showFavoritesOnly ? 'Show All Meals' : '⭐ Show Favorites'}
+          </button>
 
-        <MealStatsModal
-          meals={meals}
-          isOpen={showStats}
-          onClose={() => setShowStats(false)}
-          filterWeek={true}
-          filterFavorites={showFavoritesOnly}
-        />
-      </div>
+          <button
+            onClick={() => navigate('/add-meal')}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+            }}
+          >
+            ➕ Add a New Meal
+          </button>
 
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-          flexWrap: 'wrap',
-          textAlign: 'center',
-        }}
-      >
-        <button
-          onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
-          style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-            backgroundColor: '#f9f9f9',
-            cursor: 'pointer',
-          }}
-        >
-          ← Prev Week
-        </button>
+          <button onClick={() => setShowStats(true)}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+            }}
+          >
+            📊 View Meal Stats
+          </button>
 
-        <strong style={{ fontSize: '1rem' }}>
-          Week of {format(currentWeekStart, 'EEEE, MMM d')} – {format(addDays(currentWeekStart, 6), 'EEEE, MMM d')}
-        </strong>
-
-        <button
-          onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
-          style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-            backgroundColor: '#f9f9f9',
-            cursor: 'pointer',
-          }}
-        >
-          Next Week →
-        </button>
-
-        <button
-          onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-          style={{
-            padding: '0.4rem 0.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.4rem',
-            backgroundColor: '#f9f9f9',
-            cursor: 'pointer',
-          }}
-        >
-          Today
-        </button>
-
-        <DatePicker
-          selected={currentWeekStart}
-          onChange={(date) => setCurrentWeekStart(startOfWeek(date, { weekStartsOn: 1 }))}
-          customInput={
-            <button
-              title="Pick a week"
-              style={{
-                padding: '0.4rem 0.75rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                border: '1px solid #ccc',
-                borderRadius: '0.4rem',
-                backgroundColor: '#f9f9f9',
-                cursor: 'pointer',
-              }}
-            >
-              <Calendar size={16} />
-              Pick Date
-            </button>
-          }
-          popperPlacement="bottom-end"
-        />
-      </div>
-
-      {weekDates.map((dateStr) => (
-        <div key={dateStr} style={{ marginBottom: '2rem' }}>
-          <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-            <thead style={{ backgroundColor: '#f8f8f8' }}>
-              <tr>
-                <th style={thStyle}>Meal</th>
-                <th style={thStyle}>Category</th>
-                <th style={thStyle}>⭐</th>
-                <th style={thStyle}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(groupedMeals[dateStr] || []).length === 0 ? (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>
-                    <Link
-                      to={`/add-meal?date=${dateStr}`}
-                      style={{
-                        display: 'inline-block',
-                        padding: '0.6rem 1.2rem',
-                        backgroundColor: '#f0f0f0',
-                        borderRadius: '0.5rem',
-                        border: '1px dashed #bbb',
-                        color: '#444',
-                        textDecoration: 'none',
-                        fontSize: '0.95rem',
-                        fontStyle: 'italic',
-                        transition: 'all 0.2s ease-in-out'
-                      }}
-                      onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#e4e4e4')}
-                      onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                    >
-                      ➕ Add a meal
-                    </Link>
-                  </td>
-                </tr>
-              ) : (
-                (groupedMeals[dateStr] || []).map((meal) => {
-                  const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
-                  const backgroundColor = isHighlighted
-                    ? meal.favorite ? '#fff3c0' : '#d4f4f7'
-                    : 'white';
-
-                  return (
-                    <tr
-                      key={meal.id}
-                      style={{
-                        backgroundColor,
-                        transition: 'background-color 0.6s ease'
-                      }}
-                    >
-                      <td style={tdStyle}>{meal.name}</td>
-                      <td style={tdStyle}>{meal.category}</td>
-                      <td style={{ ...tdStyle, textAlign: 'center' }}>
-                        <button
-                          onClick={() => toggleFavorite(meal.id)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '1.3rem'
-                          }}
-                          title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
-                        >
-                          {meal.favorite ? '⭐' : '☆'}
-                        </button>
-                      </td>
-                      <td style={tdStyle}>
-                        <button
-                          onClick={() => navigate(`/edit-meal/${meal.id}`)}
-                          style={{
-                            padding: '0.4rem 0.75rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.4rem',
-                            marginRight: '0.5rem',
-                            backgroundColor: '#f9f9f9',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Edit
-                        </button>
-
-                        <button
-                          onClick={() => deleteMeal(meal.id)}
-                          style={{
-                            padding: '0.4rem 0.75rem',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            border: '1px solid #ccc',
-                            borderRadius: '0.4rem',
-                            backgroundColor: '#f9f9f9',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+          <MealStatsModal
+            meals={meals}
+            isOpen={showStats}
+            onClose={() => setShowStats(false)}
+            filterWeek={true}
+            filterFavorites={showFavoritesOnly}
+          />
         </div>
-      ))}
-    </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '1rem',
+            marginBottom: '1.5rem',
+            flexWrap: 'wrap',
+            textAlign: 'center',
+          }}
+        >
+          <button
+            onClick={() => setCurrentWeekStart(addDays(currentWeekStart, -7))}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+              backgroundColor: '#f9f9f9',
+              cursor: 'pointer',
+            }}
+          >
+            ← Prev Week
+          </button>
+
+          <strong style={{ fontSize: '1rem' }}>
+            Week of {format(currentWeekStart, 'EEEE, MMM d')} – {format(addDays(currentWeekStart, 6), 'EEEE, MMM d')}
+          </strong>
+
+          <button
+            onClick={() => setCurrentWeekStart(addDays(currentWeekStart, 7))}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+              backgroundColor: '#f9f9f9',
+              cursor: 'pointer',
+            }}
+          >
+            Next Week →
+          </button>
+
+          <button
+            onClick={() => setCurrentWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+            style={{
+              padding: '0.4rem 0.75rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              border: '1px solid #ccc',
+              borderRadius: '0.4rem',
+              backgroundColor: '#f9f9f9',
+              cursor: 'pointer',
+            }}
+          >
+            Today
+          </button>
+
+          <DatePicker
+            selected={currentWeekStart}
+            onChange={(date) => setCurrentWeekStart(startOfWeek(date, { weekStartsOn: 1 }))}
+            customInput={
+              <button
+                title="Pick a week"
+                style={{
+                  padding: '0.4rem 0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  border: '1px solid #ccc',
+                  borderRadius: '0.4rem',
+                  backgroundColor: '#f9f9f9',
+                  cursor: 'pointer',
+                }}
+              >
+                <Calendar size={16} />
+                Pick Date
+              </button>
+            }
+            popperPlacement="bottom-end"
+          />
+        </div>
+
+        {weekDates.map((dateStr) => (
+          <div key={dateStr} style={{ marginBottom: '2rem' }}>
+            <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+              <thead style={{ backgroundColor: '#f8f8f8' }}>
+                <tr>
+                  <th style={thStyle}>Meal</th>
+                  <th style={thStyle}>Category</th>
+                  <th style={thStyle}>⭐</th>
+                  <th style={thStyle}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(groupedMeals[dateStr] || []).length === 0 ? (
+                  <tr>
+                    <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>
+                      <Link
+                        to={`/add-meal?date=${dateStr}`}
+                        style={{
+                          display: 'inline-block',
+                          padding: '0.6rem 1.2rem',
+                          backgroundColor: '#f0f0f0',
+                          borderRadius: '0.5rem',
+                          border: '1px dashed #bbb',
+                          color: '#444',
+                          textDecoration: 'none',
+                          fontSize: '0.95rem',
+                          fontStyle: 'italic',
+                          transition: 'all 0.2s ease-in-out'
+                        }}
+                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#e4e4e4')}
+                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                      >
+                        ➕ Add a meal
+                      </Link>
+                    </td>
+                  </tr>
+                ) : (
+                  (groupedMeals[dateStr] || []).map((meal) => {
+                    const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
+                    const backgroundColor = isHighlighted
+                      ? meal.favorite ? '#fff3c0' : '#d4f4f7'
+                      : 'white';
+
+                    return (
+                      <tr
+                        key={meal.id}
+                        style={{
+                          backgroundColor,
+                          transition: 'background-color 0.6s ease'
+                        }}
+                      >
+                        <td style={tdStyle}>{meal.name}</td>
+                        <td style={tdStyle}>{meal.category}</td>
+                        <td style={{ ...tdStyle, textAlign: 'center' }}>
+                          <button
+                            onClick={() => toggleFavorite(meal.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: '1.3rem'
+                            }}
+                            title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
+                          >
+                            {meal.favorite ? '⭐' : '☆'}
+                          </button>
+                        </td>
+                        <td style={tdStyle}>
+                          <button
+                            onClick={() => navigate(`/edit-meal/${meal.id}`)}
+                            style={{
+                              padding: '0.4rem 0.75rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              border: '1px solid #ccc',
+                              borderRadius: '0.4rem',
+                              marginRight: '0.5rem',
+                              backgroundColor: '#f9f9f9',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Edit
+                          </button>
+
+                          <button
+                            onClick={() => deleteMeal(meal.id)}
+                            style={{
+                              padding: '0.4rem 0.75rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              border: '1px solid #ccc',
+                              borderRadius: '0.4rem',
+                              backgroundColor: '#f9f9f9',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
