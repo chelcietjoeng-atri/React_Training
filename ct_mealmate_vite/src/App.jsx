@@ -1,21 +1,23 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
-import { MealsProvider } from './context/MealsContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from "./context/AuthContext";
+import { MealsProvider } from "./context/MealsContext";
 
-import HomePage from './pages/HomePage';
-import AddMealPage from './pages/AddMealPage';
-import EditMealPage from './pages/EditMealPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+import AddMealPage from "./pages/AddMealPage";
+import EditMealPage from "./pages/EditMealPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
-import WelcomePopup from './components/WelcomePopup';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from "./components/PrivateRoute";
+import WelcomePopup from "./components/WelcomePopup";
 
-import 'react-datepicker/dist/react-datepicker.css';
-import './App.css';
-import './index.css';
+import "react-datepicker/dist/react-datepicker.css";
+import "./App.css";
+import "./index.css";
+
+import { useEffect, useState } from "react";
 
 export default function App() {
   return (
@@ -47,9 +49,18 @@ export default function App() {
 
 // Separate HomeWithWelcome as a cleaner pattern
 function HomeWithWelcome() {
+  const [showPopup, setShowPopup] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem("showWelcomePopup") === "true") {
+      setShowPopup(true);
+      localStorage.removeItem("showWelcomePopup");
+    }
+  }, []);
+
   return (
     <>
-      <WelcomePopup />
+      {showPopup && <WelcomePopup />}
       <HomePage />
     </>
   );

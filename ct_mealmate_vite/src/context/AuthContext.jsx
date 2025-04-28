@@ -21,7 +21,7 @@ export function AuthProvider({ children }) {
     const cleanPassword = password.trim();
 
     try {
-      const res = await axios.get("http://localhost:3001/users", {
+      const res = await axios.get(`http://localhost:3001/users`, {
         params: { username: cleanUsername, password: cleanPassword },
       });
 
@@ -29,12 +29,17 @@ export function AuthProvider({ children }) {
         const foundUser = res.data[0];
         setUser(foundUser);
         localStorage.setItem("user", JSON.stringify(foundUser));
+
+        // Show Good Afternoon popup here after successful login
+        localStorage.setItem("showWelcomePopup", "true");
+
         return true;
       } else {
+        console.warn("No user matched login credentials.");
         return false;
       }
-    } catch (error) {
-      console.error("Login error:", error);
+    } catch (err) {
+      console.error("Login error:", err.message);
       return false;
     }
   };

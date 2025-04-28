@@ -35,18 +35,11 @@
       "favorite": true
     },
     {
-      "id": "187e",
+      "id": "6bb6",
       "name": "Poke Bowl",
       "category": "Lunch",
-      "date": "2025-04-28",
-      "favorite": true
-    },
-    {
-      "id": "7e64",
-      "name": "Poke Bowl",
-      "category": "Lunch",
-      "date": "2025-04-29",
-      "favorite": true
+      "date": "2025-03-31",
+      "favorite": false
     }
   ]
 }
