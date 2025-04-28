@@ -15,6 +15,7 @@ import PrivateRoute from './components/PrivateRoute';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
+import './index.css';
 
 export default function App() {
   return (
