@@ -1,4 +1,4 @@
-// AddMealPage.js
+// AddMealPage.jsx
 // Page to add a new meal using React Hook Form
 
 import React from 'react';
@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import { parseISO, isValid } from 'date-fns';
 import { format } from 'date-fns';
 import StickyHeader from '../components/StickyHeader'; 
+import { Link } from "react-router-dom";
 
 
 function AddMealPage() {
@@ -32,13 +33,20 @@ function AddMealPage() {
       name: '',
       category: '',
       date: defaultDate,
+      favorite: false,
     }
   });  
 
   const onSubmit = (data) => {
-    addMeal({ ...data, date: data.date.toISOString().split('T')[0] });
+    const isFavorite = data.favorite === true || data.favorite === 'on';
+  
+    addMeal({ 
+      ...data,
+      date: data.date instanceof Date ? data.date.toISOString().split('T')[0] : data.date,
+      favorite: isFavorite,
+    });
     navigate('/');
-  };
+  };  
 
   return (
     <>
@@ -93,7 +101,13 @@ function AddMealPage() {
           {/* Favorite */}
           <div>
             <label>
-              <input type="checkbox" {...register('favorite')} /> Favorite?
+            <input
+              type="checkbox"
+              {...register('favorite')}
+              checked={watch('favorite')}
+              onChange={(e) => setValue('favorite', e.target.checked)}
+            />
+            Favorite?
             </label>
           </div>
 
@@ -104,7 +118,7 @@ function AddMealPage() {
         </form>
 
         <div style={{ marginTop: '1rem' }}>
-          <a href="/">← Back to Home</a>
+          <Link to="/">← Back to Home</Link>
         </div>
       </div>
     </>

@@ -13,9 +13,9 @@ export function MealsProvider({ children }) {
   }, []);
 
   const addMeal = async (meal) => {
-    const response = await axios.post(API_URL, { ...meal, favorite: false });
+    const response = await axios.post(API_URL, meal); 
     setMeals((prev) => [...prev, response.data]);
-  };
+  };  
 
   const deleteMeal = async (id) => {
     await axios.delete(`${API_URL}/${id}`);
