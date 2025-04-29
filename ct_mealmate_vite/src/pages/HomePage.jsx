@@ -250,8 +250,18 @@ function HomePage() {
             popperPlacement="bottom-end"
           />
         </div>
+        
+        {showFavoritesOnly && filteredMeals.length === 0 && (
+          <div style={{ textAlign: 'center', margin: '2rem 0', color: '#666' }}>
+            <p>No favorite meals found for this week.</p>
+          </div>
+        )}
 
-        {weekDates.map((dateStr) => (
+        {weekDates
+          .filter((dateStr) =>
+            !showFavoritesOnly || (groupedMeals[dateStr] && groupedMeals[dateStr].some((meal) => meal.favorite))
+          )
+          .map((dateStr) => (
           <div key={dateStr} style={{ marginBottom: '2rem' }}>
             <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
             <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
