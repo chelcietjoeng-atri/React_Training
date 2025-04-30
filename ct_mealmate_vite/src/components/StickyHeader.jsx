@@ -6,6 +6,11 @@ function StickyHeader() {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useAuth();
 
+  const handleLogout = () => {
+    logout();            // clear auth state
+    navigate('/login');  // redirect to login page
+  };
+
   return (
     <header
       style={{
@@ -44,7 +49,7 @@ function StickyHeader() {
             👤 {user?.username}
           </span>
           <button
-            onClick={logout}
+            onClick={handleLogout}
             style={{
               padding: '0.5rem 1rem',
               backgroundColor: '#e74c3c',
