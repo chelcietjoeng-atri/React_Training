@@ -65,14 +65,25 @@ function HomePage() {
   });
 
   const filteredMeals = meals
-    .filter((meal) => weekDates.includes(meal.date))
-    .filter((meal) => meal.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter((meal) => (showFavoritesOnly ? meal.favorite : true))
-    .sort((a, b) => {
-      if (sortField === 'date') return a.date.localeCompare(b.date);
-      if (sortField === 'category') return a.category.localeCompare(b.category);
-      return 0;
-    });
+  .filter((meal) => {
+    const mealDate = format(new Date(meal.date), 'yyyy-MM-dd');
+
+    // Week filter (always apply)
+    const inCurrentWeek = weekDates.includes(mealDate);
+
+    // Search filter
+    const matchesSearch = meal.name.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // Favorites filter
+    const matchesFavorite = !showFavoritesOnly || meal.favorite;
+
+    return inCurrentWeek && matchesSearch && matchesFavorite;
+  })
+  .sort((a, b) => {
+    if (sortField === 'date') return a.date.localeCompare(b.date);
+    if (sortField === 'category') return a.category.localeCompare(b.category);
+    return 0;
+  });
 
   const groupedMeals = groupByDate(filteredMeals);
 
@@ -250,71 +261,39 @@ function HomePage() {
             popperPlacement="bottom-end"
           />
         </div>
-        
-        {showFavoritesOnly && filteredMeals.length === 0 && (
-          <div style={{ textAlign: 'center', margin: '2rem 0', color: '#666' }}>
-            <p>No favorite meals found for this week.</p>
-          </div>
-        )}
 
-        {weekDates
-          .filter((dateStr) =>
-            !showFavoritesOnly || (groupedMeals[dateStr] && groupedMeals[dateStr].some((meal) => meal.favorite))
-          )
-          .map((dateStr) => (
-          <div key={dateStr} style={{ marginBottom: '2rem' }}>
-            <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
-              <thead style={{ backgroundColor: '#f8f8f8' }}>
-                <tr>
-                  <th style={thStyle}>Meal</th>
-                  <th style={thStyle}>Category</th>
-                  <th style={thStyle}>⭐</th>
-                  <th style={thStyle}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(groupedMeals[dateStr] || []).length === 0 ? (
+        {searchTerm ? (
+          <>
+            <h2 style={{ marginBottom: '1rem' }}>
+              Search Results for "<em>{searchTerm}</em>"
+            </h2>
+            {filteredMeals.length === 0 ? (
+              <div style={{ textAlign: 'center', margin: '2rem 0', color: '#666' }}>
+                <p>No meals match your search for this week.</p>
+              </div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                <thead style={{ backgroundColor: '#f8f8f8' }}>
                   <tr>
-                    <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>
-                      <Link
-                        to={`/add-meal?date=${dateStr}`}
-                        style={{
-                          display: 'inline-block',
-                          padding: '0.6rem 1.2rem',
-                          backgroundColor: '#f0f0f0',
-                          borderRadius: '0.5rem',
-                          border: '1px dashed #bbb',
-                          color: '#444',
-                          textDecoration: 'none',
-                          fontSize: '0.95rem',
-                          fontStyle: 'italic',
-                          transition: 'all 0.2s ease-in-out'
-                        }}
-                        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#e4e4e4')}
-                        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                      >
-                        ➕ Add a meal
-                      </Link>
-                    </td>
+                    <th style={thStyle}>Meal</th>
+                    <th style={thStyle}>Category</th>
+                    <th style={thStyle}>Date</th>
+                    <th style={thStyle}>⭐</th>
+                    <th style={thStyle}>Actions</th>
                   </tr>
-                ) : (
-                  (groupedMeals[dateStr] || []).map((meal) => {
+                </thead>
+                <tbody>
+                  {filteredMeals.map((meal) => {
                     const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
                     const backgroundColor = isHighlighted
                       ? meal.favorite ? '#fff3c0' : '#d4f4f7'
                       : 'white';
 
                     return (
-                      <tr
-                        key={meal.id}
-                        style={{
-                          backgroundColor,
-                          transition: 'background-color 0.6s ease'
-                        }}
-                      >
+                      <tr key={meal.id} style={{ backgroundColor, transition: 'background-color 0.6s ease' }}>
                         <td style={tdStyle}>{meal.name}</td>
                         <td style={tdStyle}>{meal.category}</td>
+                        <td style={tdStyle}>{format(new Date(meal.date), 'yyyy-MM-dd')}</td>
                         <td style={{ ...tdStyle, textAlign: 'center' }}>
                           <button
                             onClick={() => toggleFavorite(meal.id)}
@@ -334,26 +313,19 @@ function HomePage() {
                             onClick={() => navigate(`/edit-meal/${meal.id}`)}
                             style={{
                               padding: '0.4rem 0.75rem',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.4rem',
+                              marginRight: '0.5rem',
                               border: '1px solid #ccc',
                               borderRadius: '0.4rem',
-                              marginRight: '0.5rem',
                               backgroundColor: '#f9f9f9',
                               cursor: 'pointer'
                             }}
                           >
                             Edit
                           </button>
-
                           <button
                             onClick={() => deleteMeal(meal.id)}
                             style={{
                               padding: '0.4rem 0.75rem',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.4rem',
                               border: '1px solid #ccc',
                               borderRadius: '0.4rem',
                               backgroundColor: '#f9f9f9',
@@ -365,12 +337,125 @@ function HomePage() {
                         </td>
                       </tr>
                     );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                  })}
+                </tbody>
+              </table>
+            )}
+          </>
+        ) : (
+          // grouped view if not searching
+          <>
+            {showFavoritesOnly && filteredMeals.length === 0 && (
+              <div style={{ textAlign: 'center', margin: '2rem 0', color: '#666' }}>
+                <p>No favorite meals found for this week.</p>
+              </div>
+            )}
+            {weekDates
+              .filter((dateStr) =>
+                !showFavoritesOnly || (groupedMeals[dateStr] && groupedMeals[dateStr].some((meal) => meal.favorite))
+              )
+              .map((dateStr) => (
+                <div key={dateStr} style={{ marginBottom: '2rem' }}>
+                  <h2 style={{ marginBottom: '0.5rem' }}>{format(new Date(dateStr), 'EEEE, MMM d')}</h2>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #ddd' }}>
+                    <thead style={{ backgroundColor: '#f8f8f8' }}>
+                      <tr>
+                        <th style={thStyle}>Meal</th>
+                        <th style={thStyle}>Category</th>
+                        <th style={thStyle}>⭐</th>
+                        <th style={thStyle}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(groupedMeals[dateStr] || []).length === 0 ? (
+                        <tr>
+                          <td colSpan="4" style={{ textAlign: 'center', padding: '1rem' }}>
+                            <Link
+                              to={`/add-meal?date=${dateStr}`}
+                              style={{
+                                display: 'inline-block',
+                                padding: '0.6rem 1.2rem',
+                                backgroundColor: '#f0f0f0',
+                                borderRadius: '0.5rem',
+                                border: '1px dashed #bbb',
+                                color: '#444',
+                                textDecoration: 'none',
+                                fontSize: '0.95rem',
+                                fontStyle: 'italic',
+                                transition: 'all 0.2s ease-in-out'
+                              }}
+                              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#e4e4e4')}
+                              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                            >
+                              ➕ Add a meal
+                            </Link>
+                          </td>
+                        </tr>
+                      ) : (
+                        (groupedMeals[dateStr] || []).map((meal) => {
+                          const isHighlighted = highlightedId === meal.id && Date.now() - lastActionTime < 2000;
+                          const backgroundColor = isHighlighted
+                            ? meal.favorite ? '#fff3c0' : '#d4f4f7'
+                            : 'white';
+
+                          return (
+                            <tr
+                              key={meal.id}
+                              style={{ backgroundColor, transition: 'background-color 0.6s ease' }}
+                            >
+                              <td style={tdStyle}>{meal.name}</td>
+                              <td style={tdStyle}>{meal.category}</td>
+                              <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                <button
+                                  onClick={() => toggleFavorite(meal.id)}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '1.3rem'
+                                  }}
+                                  title={meal.favorite ? 'Unmark Favorite' : 'Mark Favorite'}
+                                >
+                                  {meal.favorite ? '⭐' : '☆'}
+                                </button>
+                              </td>
+                              <td style={tdStyle}>
+                                <button
+                                  onClick={() => navigate(`/edit-meal/${meal.id}`)}
+                                  style={{
+                                    padding: '0.4rem 0.75rem',
+                                    marginRight: '0.5rem',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '0.4rem',
+                                    backgroundColor: '#f9f9f9',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => deleteMeal(meal.id)}
+                                  style={{
+                                    padding: '0.4rem 0.75rem',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '0.4rem',
+                                    backgroundColor: '#f9f9f9',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+          </>
+        )}
       </div>
     </>
   );
