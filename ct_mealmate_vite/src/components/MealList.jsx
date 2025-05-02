@@ -1,42 +1,71 @@
-// MealList.js
+// MealList.jsx
 // Displays a table of meals using React Table
 
-// MealList.js
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+} from '@tanstack/react-table';
 
-function MealList({ meals, onDelete }) {
-  if (meals.length === 0) {
-    return <p className="mt-4 text-gray-600">No meals added yet.</p>;
-  }
+function MealList({ meals }) {
+  const data = useMemo(() => meals, [meals]);
+
+  const columns = useMemo(
+    () => [
+      {
+        header: 'Name',
+        accessorKey: 'name',
+      },
+      {
+        header: 'Category',
+        accessorKey: 'category',
+      },
+      {
+        header: 'Day',
+        accessorKey: 'day',
+      },
+      {
+        header: 'Actions',
+        id: 'actions',
+        cell: ({ row }) => (
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={() => console.log('Edit', row.original)}>✏️</button>
+            <button onClick={() => console.log('Delete', row.original)}>🗑️</button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
-    <table className="min-w-full table-auto border-collapse border border-gray-300 mt-4">
-      <thead className="bg-gray-100">
-        <tr>
-          <th className="border border-gray-300 px-4 py-2">Meal Name</th>
-          <th className="border border-gray-300 px-4 py-2">Day</th>
-          <th className="border border-gray-300 px-4 py-2">Category</th>
-          <th className="border border-gray-300 px-4 py-2">Actions</th>
-        </tr>
+    <table className="meal-table">
+      <thead>
+        {table.getHeaderGroups().map(headerGroup => (
+          <tr key={headerGroup.id}>
+            {headerGroup.headers.map(header => (
+              <th key={header.id}>
+                {flexRender(header.column.columnDef.header, header.getContext())}
+              </th>
+            ))}
+          </tr>
+        ))}
       </thead>
       <tbody>
-        {meals.map((meal) => (
-          <tr key={meal.id}>
-            <td className="border px-4 py-2">{meal.name}</td>
-            <td className="border px-4 py-2">{meal.day}</td>
-            <td className="border px-4 py-2">{meal.category}</td>
-            <td className="border px-4 py-2">
-              <Link to={`/edit-meal/${meal.id}`} className="text-blue-600 hover:underline mr-4">
-                Edit
-              </Link>
-              <button
-                onClick={() => onDelete(meal.id)}
-                className="text-red-600 hover:underline"
-              >
-                Delete
-              </button>
-            </td>
+        {table.getRowModel().rows.map(row => (
+          <tr key={row.id}>
+            {row.getVisibleCells().map(cell => (
+              <td key={cell.id}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </td>
+            ))}
           </tr>
         ))}
       </tbody>
