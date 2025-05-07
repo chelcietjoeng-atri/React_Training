@@ -81,9 +81,9 @@ describe('Authentication and Meal Management', () => {
     cy.visit(`${baseUrl}/login`);
     cy.get('input[type="text"]').type('wronguser'); // Enter invalid username
     cy.get('input[type="password"]').type('wrongpass'); // Enter invalid password
-    cy.contains('Login').click(); // Submit login form
-
-    // Expect to see an error message indicating login failure
+    cy.get('button[type="submit"]').click(); // Submit login form
+  
+    // After inspecting, resume and assert
     cy.contains('Invalid username or password').should('exist');
   });
 
