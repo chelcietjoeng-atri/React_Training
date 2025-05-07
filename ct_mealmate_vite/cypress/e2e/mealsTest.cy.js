@@ -61,13 +61,20 @@ describe('Authentication and Meal Management', () => {
   // 3. Login with valid credentials
   it('should login successfully with correct credentials', () => {
     cy.visit(`${baseUrl}/login`);
-    cy.get('input[type="text"]').type(testUser.username); // Enter valid username
-    cy.get('input[type="password"]').type(testUser.password); // Enter valid password
-    cy.contains('Login').click(); // Submit login form
-
-    // Expect successful login to redirect to homepage
-    cy.url().should('eq', `${baseUrl}/`);
-  });
+  
+    cy.get('input[type="text"]').type(testUser.username);
+    cy.get('input[type="password"]').type(testUser.password);
+    cy.get('button[type="submit"]').click();
+  
+    // Wait for redirect
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
+  
+    // Check user is stored
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+  });  
 
   // 4. Login with invalid credentials
   it('should display error on invalid login', () => {

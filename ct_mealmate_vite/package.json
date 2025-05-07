@@ -12,7 +12,9 @@
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.9.0",
+    "body-parser": "^2.2.0",
     "classnames": "^2.5.1",
+    "express": "^5.1.0",
     "flatpickr": "^4.6.13",
     "framer-motion": "^12.9.2",
     "json-server": "^0.17.4",
