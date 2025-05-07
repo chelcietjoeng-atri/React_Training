@@ -1,44 +1,17 @@
 {
   "users": [
     {
-      "id": "1",
-      "username": "admin",
-      "password": "123123"
-    },
-    {
-      "id": "2321",
-      "username": "admin2",
-      "password": "123123"
-    },
-    {
-      "id": "48f5",
-      "username": "babymochi",
-      "password": "123123"
-    },
-    {
-      "id": "72bc",
-      "username": "babymochi2",
-      "password": "123123"
-    },
-    {
-      "id": "2985",
-      "username": "admin123",
-      "password": "123123"
+      "id": "be6b",
+      "username": "testuser",
+      "password": "testpass"
     }
   ],
   "meals": [
     {
-      "id": "ef81",
-      "name": "Avocado Toast 5",
+      "id": "026b",
+      "name": "Test Meal",
       "category": "Breakfast",
-      "date": "2025-04-15",
-      "favorite": true
-    },
-    {
-      "id": "6bb6",
-      "name": "Poke Bowl",
-      "category": "Lunch",
-      "date": "2025-03-31",
+      "date": "2025-05-07",
       "favorite": false
     }
   ]
