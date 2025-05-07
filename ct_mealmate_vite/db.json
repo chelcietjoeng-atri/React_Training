@@ -1,18 +1,18 @@
 {
   "users": [
     {
-      "id": "be6b",
       "username": "testuser",
-      "password": "testpass"
+      "password": "testpass",
+      "id": 1
     }
   ],
   "meals": [
     {
-      "id": "026b",
       "name": "Test Meal",
       "category": "Breakfast",
       "date": "2025-05-07",
-      "favorite": false
+      "favorite": false,
+      "id": 1
     }
   ]
 }
