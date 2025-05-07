@@ -1,3 +1,5 @@
+// src/context/MealsContext.jsx
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -9,35 +11,60 @@ export function MealsProvider({ children }) {
 
   // Fetch meals on load
   useEffect(() => {
-    axios.get(API_URL).then((res) => setMeals(res.data)).catch(console.error);
+    fetchMeals();
   }, []);
 
+  const fetchMeals = async () => {
+    try {
+      const res = await axios.get(API_URL);
+      setMeals(res.data);
+    } catch (error) {
+      console.error('Failed to fetch meals:', error);
+    }
+  };
+
   const addMeal = async (meal) => {
-    const response = await axios.post(API_URL, meal); 
-    setMeals((prev) => [...prev, response.data]);
+    try {
+      const response = await axios.post(API_URL, meal); 
+      setMeals((prev) => [...prev, response.data]);
+    } catch (error) {
+      console.error('Failed to add meal:', error);
+    }
   };  
 
   const deleteMeal = async (id) => {
-    await axios.delete(`${API_URL}/${id}`);
-    setMeals((prev) => prev.filter((m) => m.id !== id));
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setMeals((prev) => prev.filter((m) => m.id !== id));
+    } catch (error) {
+      console.error('Failed to delete meal:', error);
+    }
   };
 
   const editMeal = async (id, updatedMeal) => {
-    const response = await axios.put(`${API_URL}/${id}`, updatedMeal);
-    setMeals((prev) =>
-      prev.map((meal) => (meal.id === id ? response.data : meal))
-    );
+    try {
+      const response = await axios.put(`${API_URL}/${id}`, updatedMeal);
+      setMeals((prev) =>
+        prev.map((meal) => (meal.id === id ? response.data : meal))
+      );
+    } catch (error) {
+      console.error('Failed to edit meal:', error);
+    }
   };
 
   const toggleFavorite = async (id) => {
-    const meal = meals.find((m) => m.id === id);
-    if (!meal) return;
-    const response = await axios.patch(`${API_URL}/${id}`, {
-      favorite: !meal.favorite,
-    });
-    setMeals((prev) =>
-      prev.map((m) => (m.id === id ? response.data : m))
-    );
+    try {
+      const meal = meals.find((m) => m.id === id);
+      if (!meal) return;
+      const response = await axios.patch(`${API_URL}/${id}`, {
+        favorite: !meal.favorite,
+      });
+      setMeals((prev) =>
+        prev.map((m) => (m.id === id ? response.data : m))
+      );
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
   };
 
   return (
