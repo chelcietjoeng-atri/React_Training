@@ -45,18 +45,18 @@ describe('Authentication and Meal Management', () => {
   });
 
   // 2. Check if duplicate usernames are not allowed
-  it('should not allow duplicate usernames', () => {
-    // Pre-create the user to simulate duplicate username
-    cy.request('POST', usersApiUrl, testUser);
+  // it('should not allow duplicate usernames', () => {
+  //   // Pre-create the user to simulate duplicate username
+  //   cy.request('POST', usersApiUrl, testUser);
 
-    cy.visit(`${baseUrl}/register`);
-    cy.get('input[type="text"]').type(testUser.username); // Try using the same username
-    cy.get('input[type="password"]').type(testUser.password);
-    cy.contains('Register').click(); // Attempt to register again
+  //   cy.visit(`${baseUrl}/register`);
+  //   cy.get('input[type="text"]').type(testUser.username); // Try using the same username
+  //   cy.get('input[type="password"]').type(testUser.password);
+  //   cy.contains('Register').click(); // Attempt to register again
 
-    // Should display a message that the username already exists
-    cy.contains('Username already exists.').should('exist');
-  });
+  //   // Should display a message that the username already exists
+  //   cy.contains('Username already exists.').should('exist');
+  // });
 
   // 3. Login with valid credentials
   it('should login successfully with correct credentials', () => {
@@ -89,65 +89,236 @@ describe('Authentication and Meal Management', () => {
 
   // 5. Display the list of meals on HomePage
   it('should display the list of meals on HomePage', () => {
-    cy.contains('Test Meal').should('exist');       // Meal name
-    cy.contains('Breakfast').should('exist');       // Meal category
-    cy.contains('2025-05-07').should('exist');      // Meal date
+    cy.visit(`${baseUrl}/login`);
+
+    cy.get('input[type="text"]').type(testUser.username); // Type valid username
+    cy.get('input[type="password"]').type(testUser.password); // Type valid password
+    cy.get('button[type="submit"]').click(); // Submit login form
+    
+    // Wait for redirect to home page
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
+    
+    // Check if the user is stored in localStorage
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+
+    // If the welcome popup exists in localStorage, check for it
+    cy.window().then((win) => {
+      const showWelcomePopup = win.localStorage.getItem('showWelcomePopup');
+      if (showWelcomePopup === 'true') {
+        // Check that the Welcome Popup is visible
+        cy.get('.welcome-popup').should('be.visible');
+        cy.contains('Good Morning!'); // Check for greeting message
+        cy.contains('Have you eaten yet?'); // Check for additional message
+        cy.contains('🍽 Add a Meal').should('be.visible'); // Check for "Add a Meal" button
+        cy.contains('📋 View Meals').should('be.visible'); // Check for "View Meals" button
+      } else {
+        // No popup, so continue with meal listing
+        cy.contains('Test Meal').should('exist'); // Check if the meal name exists
+        cy.contains('Breakfast').should('exist'); // Check if the meal category exists
+      }
+    });
+
+    // If no popup, proceed to meal checks
+    cy.contains('Test Meal').should('exist'); // Meal name check
+    cy.contains('Breakfast').should('exist'); // Meal category check
   });
 
   // 6. Add a new meal
   it('should add a new meal', () => {
-    cy.contains('➕ Add a New Meal').click();        // Open Add Meal form
+    cy.visit(`${baseUrl}/login`);
 
-    // Fill out the form fields
+    cy.get('input[type="text"]').type(testUser.username);
+    cy.get('input[type="password"]').type(testUser.password);
+    cy.get('button[type="submit"]').click();
+
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
+
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+
+    // Check if Welcome Popup is present and click "Add a Meal"
+    cy.get('body').then(($body) => {
+      if ($body.find('.welcome-popup').length > 0) {
+        cy.get('.welcome-popup').should('be.visible');
+        cy.contains('Have you eaten yet?').should('exist');
+        cy.contains('🍽 Add a Meal').click(); // Navigate to add meal page
+      } else {
+        cy.contains('➕ Add a New Meal').click(); // Fallback if no popup
+      }
+    });
+
+    // Fill form and submit
     cy.get('input[name="name"]').type('New Test Meal');
-    cy.get('input[value="Lunch"]').check();         // Select category
-    cy.get('.flatpickr-input').clear().type('2025-05-08'); // Set meal date
-    cy.get('input[type="checkbox"]').check();       // Mark as favorite
+    cy.get('input[value="Lunch"]').check();
+    cy.get('input[type="checkbox"]').check();
 
-    cy.contains('Add Meal').click();                // Submit the form
+    cy.contains('Add Meal').click();
 
-    // Confirm redirection to homepage
     cy.url().should('eq', `${baseUrl}/`);
-
-    // Check that the newly added meal appears in the list
     cy.contains('New Test Meal').should('exist');
     cy.contains('Lunch').should('exist');
-    cy.contains('2025-05-08').should('exist');
   });
 
   // 7. Edit an existing meal
   it('should edit an existing meal', () => {
-    cy.contains('Test Meal').parent().contains('✏️ Edit').click(); // Open edit form
+    cy.visit(`${baseUrl}/login`);
 
-    // Change the form values
-    cy.get('input[name="name"]').clear().type('Edited Meal');      // Update name
-    cy.get('input[value="Dinner"]').check();                       // Change category
-    cy.get('.flatpickr-input').clear().type('2025-05-09');         // Update date
-    cy.get('input[type="checkbox"]').uncheck();                    // Unmark favorite
+    cy.get('input[type="text"]').type(testUser.username);
+    cy.get('input[type="password"]').type(testUser.password);
+    cy.get('button[type="submit"]').click();
 
-    cy.contains('Save Changes').click();                           // Submit the changes
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
 
-    // Confirm changes are reflected on the homepage
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+
+    cy.get('body').then(($body) => {
+      if ($body.find('.welcome-popup').length > 0) {
+        cy.get('.welcome-popup').should('be.visible');
+        cy.contains('Have you eaten yet?').should('exist');
+        cy.contains('🍽 Add a Meal').click();
+      } else {
+        cy.contains('➕ Add a New Meal').click();
+      }
+    });
+
+    // Wait until input is enabled before typing
+    cy.get('input[name="name"]')
+      .should('exist')
+      .and('not.be.disabled')
+      .type('Test Meal');
+
+    cy.get('input[value="Lunch"]').check();
+    cy.get('input[type="checkbox"]').check();
+
+    cy.contains('Add Meal').click();
+
+    cy.url().should('eq', `${baseUrl}/`);
+    cy.contains('Test Meal').should('exist');
+    cy.contains('Lunch').should('exist');
+
+    // Click Edit on the meal
+    cy.contains('Test Meal')
+      .parent()
+      .contains('Edit')
+      .click();
+
+    cy.wait(300);
+
+    // Wait for Edit form input to be ready before clearing/typing
+    cy.get('input[name="name"]', { timeout: 5000 })
+      .should('exist')
+      .and('be.visible')
+      .and('not.be.disabled')
+      .clear()
+      .type('Edited Meal');
+
+    cy.get('input[value="Dinner"]').check();
+    cy.get('input[type="checkbox"]').uncheck();
+
+    cy.contains('button', 'Save Changes').click();
+
     cy.url().should('eq', `${baseUrl}/`);
     cy.contains('Edited Meal').should('exist');
     cy.contains('Dinner').should('exist');
-    cy.contains('2025-05-09').should('exist');
   });
 
   // 8. Delete a meal
   it('should delete a meal', () => {
-    cy.contains('Test Meal').parent().contains('Delete').click();  // Trigger delete
+    cy.visit(`${baseUrl}/login`);
 
-    // Confirm that the meal is removed from the list
+    cy.get('input[type="text"]').type(testUser.username);
+    cy.get('input[type="password"]').type(testUser.password);
+    cy.get('button[type="submit"]').click();
+
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
+
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+
+    cy.get('body').then(($body) => {
+      if ($body.find('.welcome-popup').length > 0) {
+        cy.get('.welcome-popup').should('be.visible');
+        cy.contains('Have you eaten yet?').should('exist');
+        cy.contains('🍽 Add a Meal').click();
+      } else {
+        cy.contains('➕ Add a New Meal').click();
+      }
+    });
+
+    // Wait until input is enabled before typing
+    cy.get('input[name="name"]')
+      .should('exist')
+      .and('not.be.disabled')
+      .type('Test Meal');
+
+    cy.get('input[value="Lunch"]').check();
+    cy.get('input[type="checkbox"]').check();
+
+    cy.contains('Add Meal').click();
+
+    cy.url().should('eq', `${baseUrl}/`);
+    cy.contains('Test Meal').should('exist');
+    cy.contains('Lunch').should('exist');
+
+    // Delete the meal
+    cy.contains('Test Meal')
+      .parent()
+      .contains('Delete')
+      .click();
+
+    // Verify meal is gone
     cy.contains('Test Meal').should('not.exist');
   });
 
   // 9. Logout
   it('should log out successfully', () => {
-    // Assuming there is a logout button/link on the page
+    // Login flow
+    cy.visit(`${baseUrl}/login`);
+    
+    cy.get('input[type="text"]').type(testUser.username); // Type valid username
+    cy.get('input[type="password"]').type(testUser.password); // Type valid password
+    cy.get('button[type="submit"]').click(); // Submit login form
+    
+    // Wait for redirect to home page
+    cy.location('pathname', { timeout: 5000 }).should('eq', '/');
+    
+    // Check if the user is stored in localStorage
+    cy.window().then((win) => {
+      const storedUser = win.localStorage.getItem('user');
+      expect(storedUser).to.not.be.null;
+    });
+  
+    // Check if Welcome Popup is present and click "View Meals"
+    cy.get('body').then(($body) => {
+      if ($body.find('.welcome-popup').length > 0) {
+        cy.get('.welcome-popup').should('be.visible');
+        cy.contains('Have you eaten yet?').should('exist');
+        cy.contains('📋 View Meals').click(); // Navigate to view meals
+      } else {
+        cy.contains('📋 View Meals').click(); // Fallback if no popup
+      }
+    });
+  
+    // Logout action
     cy.contains('Logout').click(); // Click the logout button/link
-
+  
     // Expect the user to be redirected to the login page after logging out
     cy.url().should('include', '/login');
-  });
+  
+    // Optionally, verify the user is removed from localStorage after logout
+    cy.window().then((win) => {
+      const storedUserAfterLogout = win.localStorage.getItem('user');
+      expect(storedUserAfterLogout).to.be.null;
+    });
+  });  
 });

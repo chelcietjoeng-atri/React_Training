@@ -13,7 +13,7 @@ function EditMealPage() {
   const navigate = useNavigate();
   const { mealId } = useParams();
   const { meals, editMeal } = useMeals(); 
-  const meal = meals.find((m) => m.id === mealId); 
+  const meal = meals.find((m) => String(m.id) === String(mealId)); 
 
   const {
     register,
