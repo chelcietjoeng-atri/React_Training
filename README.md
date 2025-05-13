@@ -1,6 +1,6 @@
 # MealMate
 
-A React + Vite app for meal planning and tracking, powered by a simple local JSON backend.
+**MealMate** is a React + Vite application designed for meal planning and tracking. It allows users to manage their weekly meal plans, add and edit meals, and track their progress. The app interacts with a simple local JSON backend powered by JSON Server, making it easy to simulate a RESTful API without a full-fledged server.
 
 ---
 
@@ -40,15 +40,15 @@ npm install -g json-server
 
 ### 4. Start the backend server
 ```bash
-json-server --watch db.json --port 3000
+npx json-server --watch db.json --port 3001
 ```
-- Backend available at `http://localhost:3000`
+- Backend available at `http://localhost:3001`
 
 ### 5. Start the frontend server
 ```bash
 npm run dev
 ```
-- Frontend available at `http://localhost:5173`
+- Frontend available at `http://localhost:5173/`
 
 ---
 
@@ -65,6 +65,6 @@ npm install --legacy-peer-deps
 
 ## Demo
 
-- Local demo: [http://localhost:5173](http://localhost:5173)
+- Local demo: [http://localhost:5173/](http://localhost:5173/)
 
 ---

@@ -1,3 +1,6 @@
+// App.jsx
+// This file is the main entry point for the React application.
+
 import React from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
@@ -47,14 +50,16 @@ export default function App() {
   );
 }
 
-// Separate HomeWithWelcome as a cleaner pattern
+// Helper component to handle the WelcomePopup logic
 function HomeWithWelcome() {
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false); // State to manage the visibility of the popup
 
+  // useEffect to show the popup only once based on localStorage
   useEffect(() => {
+    // Check if the "showWelcomePopup" flag is set in localStorage
     if (localStorage.getItem("showWelcomePopup") === "true") {
-      setShowPopup(true);
-      localStorage.removeItem("showWelcomePopup");
+      setShowPopup(true); // Show the popup if the flag is true
+      localStorage.removeItem("showWelcomePopup"); // Remove the flag after showing the popup
     }
   }, []);
 
@@ -65,3 +70,8 @@ function HomeWithWelcome() {
     </>
   );
 }
+
+// Summary:
+// What: This is the main application component, which includes routing and authentication context providers for managing global state.
+// Why: The app handles routing to different pages, provides global state management (for authentication and meal data), and ensures that users can only access certain routes if authenticated.
+// How: The app uses React Router for route management, AuthProvider and MealsProvider for context-based state, and PrivateRoute to protect routes. The HomeWithWelcome component conditionally shows a welcome popup on the first visit.

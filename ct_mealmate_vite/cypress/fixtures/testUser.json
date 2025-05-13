@@ -1,5 +1,7 @@
+// testUser.json
+// This file contains the test user credentials for Cypress tests, used to log in to the application during testing.
+
 {
     "username": "testuser",
     "password": "testpass"
-  }
-  
+}

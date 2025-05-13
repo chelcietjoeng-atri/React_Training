@@ -1,5 +1,5 @@
 // EditMealPage.js
-// Page to edit an existing meal using React Hook Form
+// Page for editing an existing meal using React Hook Form and Flatpickr
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -11,10 +11,11 @@ import StickyHeader from '../components/StickyHeader';
 
 function EditMealPage() {
   const navigate = useNavigate();
-  const { mealId } = useParams();
-  const { meals, editMeal } = useMeals(); 
-  const meal = meals.find((m) => String(m.id) === String(mealId)); 
+  const { mealId } = useParams(); // Get meal ID from URL params
+  const { meals, editMeal } = useMeals(); // Access meal list and update method from context
+  const meal = meals.find((m) => String(m.id) === String(mealId)); // Find the meal to edit
 
+  // Set up React Hook Form with default values
   const {
     register,
     handleSubmit,
@@ -30,6 +31,7 @@ function EditMealPage() {
     },
   });
 
+  // Pre-fill form values once the meal is loaded
   React.useEffect(() => {
     if (meal) {
       setValue('name', meal.name);
@@ -39,14 +41,16 @@ function EditMealPage() {
     }
   }, [meal, setValue]);
 
+  // Handle form submission
   const onSubmit = (data) => {
     editMeal(mealId, {
       ...data,
-      date: data.date.toISOString().split('T')[0],
+      date: data.date.toISOString().split('T')[0], // Format date as yyyy-mm-dd
     });
-    navigate('/');
+    navigate('/'); // Redirect to homepage after saving
   };  
 
+  // If meal not found
   if (!meal) return <p>Meal not found.</p>;
 
   return (
@@ -120,6 +124,7 @@ function EditMealPage() {
   );
 }
 
+// Inline styles
 const inputStyle = {
   padding: '0.5rem',
   width: '100%',
@@ -141,3 +146,8 @@ const errorStyle = {
 };
 
 export default EditMealPage;
+
+// Summary:
+// Purpose: Allows users to edit meal details including name, date, category, and favorite status.
+// Tools used: react-hook-form for simple validation, Flatpickr for date input, and context for state management.
+// Bonus: Auto-prefills existing values using React's useEffect and synchronizes changes smoothly.

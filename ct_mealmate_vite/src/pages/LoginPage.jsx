@@ -1,24 +1,28 @@
-// pages/LoginPage.js
-import { motion } from "framer-motion";
+// LoginPage.js
+// This component renders the login screen for MealMate users.
+
+import { motion } from "framer-motion"; // Used for subtle animations
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link, useNavigate } from "react-router-dom"; // Navigation + routing
+import { useAuth } from "../context/AuthContext"; // Custom hook to access login logic
 
 export default function LoginPage() {
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const { login } = useAuth(); // Destructure login function from AuthContext
+  const navigate = useNavigate(); // Used to redirect on successful login
 
+  // Local state to track input and error messages
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
+  // Handles form submission
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const success = await login(username, password);
+    e.preventDefault(); // Prevent default form reload
+    const success = await login(username, password); // Attempt login with context method
     if (success) {
-      navigate("/");
+      navigate("/"); // Redirect to homepage if login succeeds
     } else {
-      setError("Invalid username or password");
+      setError("Invalid username or password"); // Show error message on failure
     }
   };
 
@@ -92,3 +96,8 @@ export default function LoginPage() {
     </div>
   );
 }
+
+// Summary:
+// What: Allows users to enter credentials and sign in.
+// Why: Authenticated access ensures personalized meal planning.
+// How: Handles form input, calls AuthContext login, redirects on success.

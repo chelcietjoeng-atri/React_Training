@@ -1,31 +1,38 @@
-import axios from "axios";
-import { motion } from "framer-motion";
+// RegisterPage.jsx
+// This component is for registering a new user in the MealMate app.
+
+import axios from "axios"; // Axios for making HTTP requests
+import { motion } from "framer-motion"; // Motion for animations
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Navigation for routing
 
 export default function RegisterPage() {
-  const navigate = useNavigate();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const navigate = useNavigate(); // Navigation hook for redirection
+  const [username, setUsername] = useState(""); // State to track the username input
+  const [password, setPassword] = useState(""); // State to track the password input
+  const [error, setError] = useState(""); // State for managing error messages
 
+  // Handles the user registration process
   const handleRegister = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission behavior
     try {
+      // Check if the username already exists in the system
       const res = await axios.get("http://localhost:3001/users", {
-        params: { username },
+        params: { username }, // Send username as a query parameter
       });
 
+      // If the username exists, set an error and exit
       if (res.data.length > 0) {
         setError("Username already exists.");
         return;
       }
 
+      // If username is available, register the user by sending a POST request
       await axios.post("http://localhost:3001/users", { username, password });
-      navigate("/login");
+      navigate("/login"); // Redirect to login page after successful registration
     } catch (err) {
       console.error(err);
-      setError("Registration failed.");
+      setError("Registration failed."); // Display a failure message if the request fails
     }
   };
 
@@ -93,3 +100,8 @@ export default function RegisterPage() {
     </div>
   );
 }
+
+// Summary:
+// What: The component renders a registration page where users can input their username and password to create a new account.
+// Why: This allows users to sign up and access personalized meal planning features in the MealMate app.
+// How: It checks if the username is already taken using an API call, and if not, it registers the new user by sending the username and password to a backend API.

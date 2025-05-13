@@ -1,5 +1,5 @@
 // AddMealPage.jsx
-// Page to add a new meal using React Hook Form
+// Page to add a new meal entry using React Hook Form, Flatpickr, and MealsContext
 
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,10 +18,12 @@ function AddMealPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const dateParam = params.get('date');
+  // Use the passed date or default to today
   const defaultDate = dateParam && isValid(parseISO(dateParam)) ? dateParam : format(new Date(), 'yyyy-MM-dd');
 
   const navigate = useNavigate();
   const { addMeal } = useMeals();
+  // Setup form with React Hook Form
   const {
     register,
     handleSubmit,
@@ -37,9 +39,11 @@ function AddMealPage() {
     }
   });  
 
+  // Handle form submission
   const onSubmit = (data) => {
     const isFavorite = data.favorite === true || data.favorite === 'on';
   
+    // Format date and submit to context
     addMeal({ 
       ...data,
       date: data.date instanceof Date ? data.date.toISOString().split('T')[0] : data.date,
@@ -125,6 +129,7 @@ function AddMealPage() {
   );
 }
 
+// Styles
 const inputStyle = {
   padding: '0.5rem',
   width: '100%',
@@ -146,3 +151,8 @@ const errorStyle = {
 };
 
 export default AddMealPage;
+
+// Summary:
+// Purpose: This page lets users add a new meal entry with a name, date, category, and favorite toggle.
+// Tools used: react-hook-form for clean form validation, Flatpickr for user-friendly date picking, MealsContext for managing global meal state.
+// Bonus: Pre-fills date if passed as a URL query param—great for "quick add" flows.

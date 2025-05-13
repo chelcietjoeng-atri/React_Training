@@ -1,3 +1,6 @@
+// mealsTest.cy.js
+// This file contains Cypress tests for the MealMate application, covering user registration, login, meal management (add, edit, delete), and logout functionality.
+
 describe('Authentication and Meal Management', () => {
   const baseUrl = 'http://localhost:5173'; // Frontend base URL
   const apiUrl = 'http://localhost:3001/meals'; // Backend API endpoint for meals

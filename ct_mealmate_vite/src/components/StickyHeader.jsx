@@ -1,22 +1,27 @@
+// StickyHeader.jsx
+// This is a persistent top navigation header that stays fixed while scrolling.
+// It displays the app title, the current user's name, and a logout button when authenticated.
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom'; // Used for programmatic navigation
+import { useAuth } from '../context/AuthContext'; // Custom auth context to access user and auth functions
 
 function StickyHeader() {
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth(); // Destructure auth state and functions
 
+  // Called when the user clicks the "Logout" button
   const handleLogout = () => {
-    logout();            // clear auth state
-    navigate('/login');  // redirect to login page
+    logout();            // Clears user session/auth token
+    navigate('/login');  // Redirects back to login page
   };
 
   return (
     <header
       style={{
-        position: 'sticky',
+        position: 'sticky', // Sticks to top of viewport while scrolling
         top: 0,
-        zIndex: 1000,
+        zIndex: 1000, // Makes sure header stays on top of other elements
         backgroundColor: '#ffffff',
         padding: '1rem',
         borderBottom: '1px solid #e0e0e0',
@@ -72,3 +77,10 @@ function StickyHeader() {
 }
 
 export default StickyHeader;
+
+// Summary:
+// What: Renders a sticky navigation header with branding and user actions.
+// Why position: sticky and zIndex: Keeps the header visible at the top as users scroll.
+// Why navigate('/'): Provides intuitive navigation by clicking the app title.
+// Why conditional isAuthenticated: Only shows user info and logout when logged in.
+// Why inline hover effects: Enhances interactivity without needing external CSS.

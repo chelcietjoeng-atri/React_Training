@@ -1,18 +1,18 @@
 // HomePage.js
-// Main page that lists all meals and links to add/edit forms
+// Main page that lists all meals for the selected week, with filtering, sorting, and favorite toggling
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useMeals } from '../context/MealsContext';
+import { useMeals } from '../context/MealsContext'; // Access meal data and actions (add/edit/delete)
 import { startOfWeek, addDays, format } from 'date-fns';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Calendar } from 'lucide-react'; 
-import MealStatsModal from '../components/MealStatsModal';
+import { Calendar } from 'lucide-react'; // Icon for date picker
+import MealStatsModal from '../components/MealStatsModal'; // Modal to show summary statistics
 import { useNavigate } from 'react-router-dom';
-import StickyHeader from '../components/StickyHeader';
+import StickyHeader from '../components/StickyHeader'; // Header that stays visible while scrolling
 
-// Group meals by date (YYYY-MM-DD)
+// Group meals by date (YYYY-MM-DD format) for grouped rendering
 const groupByDate = (meals) =>
   meals.reduce((acc, meal) => {
     acc[meal.date] = acc[meal.date] || [];
@@ -21,19 +21,24 @@ const groupByDate = (meals) =>
   }, {});
 
 function HomePage() {
+  // Context methods
   const { meals, deleteMeal, toggleFavorite } = useMeals();
+
+  // Local state
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const [highlightedId, setHighlightedId] = useState(null);
+  const [highlightedId, setHighlightedId] = useState(null); // Highlights recently added/toggled meals
   const [lastActionTime, setLastActionTime] = useState(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const navigate = useNavigate();
-  const [showStats, setShowStats] = useState(false);
+  const [showStats, setShowStats] = useState(false); // Controls stats modal visibility
 
+  // Previous meal state refs to detect changes
   const prevMealMapRef = useRef(new Map());
   const prevMealIdsRef = useRef(new Set());
 
+  // Watch for new meals or favorite toggles to trigger a highlight effect
   useEffect(() => {
     const currentMap = new Map(meals.map((meal) => [meal.id, meal.favorite]));
     const currentIds = new Set(meals.map((meal) => meal.id));
@@ -59,11 +64,13 @@ function HomePage() {
     prevMealIdsRef.current = currentIds;
   }, [meals]);
 
+  // Generate list of all days in current week for filtering and display
   const weekDates = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(currentWeekStart, i);
     return format(date, 'yyyy-MM-dd');
   });
 
+  // Filter meals based on selected week, search term, and favorites toggle
   const filteredMeals = meals
   .filter((meal) => {
     const mealDate = format(new Date(meal.date), 'yyyy-MM-dd');
@@ -85,6 +92,7 @@ function HomePage() {
     return 0;
   });
 
+  // Group filtered meals by date for the weekly view
   const groupedMeals = groupByDate(filteredMeals);
 
   return (
@@ -461,6 +469,7 @@ function HomePage() {
   );
 }
 
+// Styles
 const thStyle = {
   padding: '0.6rem',
   border: '1px solid #ddd',
@@ -473,3 +482,13 @@ const tdStyle = {
 };
 
 export default HomePage;
+
+// Summary:
+// What: Displays meals for the selected week with filtering, sorting, favorites, and inline actions (edit/delete). It highlights new or updated meals and supports week navigation.
+// Why: To help users efficiently view, manage, and interact with their weekly meal plan, improving organization and engagement.
+// How:
+// - Filters meals by week, search, and favorites.
+// - Sorts by date or category.
+// - Highlights meals on add/favorite toggle using useEffect.
+// - Groups meals by date for display.
+// - Uses StickyHeader, MealStatsModal, and DatePicker for enhanced UI/UX.
